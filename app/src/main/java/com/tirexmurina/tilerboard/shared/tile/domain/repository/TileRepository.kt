@@ -7,6 +7,6 @@ interface TileRepository {
 
     suspend fun getTilesByKitId(kitId : Long) : List<Tile>
 
-    suspend fun createTile(type: TileType)
+    suspend fun createTile(type: TileType, kitId: Long)
 
 }
