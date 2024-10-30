@@ -12,8 +12,9 @@ import com.tirexmurina.tilerboard.shared.kit.util.UserKitException
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class KitRepositoryImpl(
+class KitRepositoryImpl @Inject constructor(
     private val userIdDataStore: UserIdDataStore,
     private val kitDao: KitDao,
     private val dispatcherIO: CoroutineDispatcher,
@@ -23,11 +24,10 @@ class KitRepositoryImpl(
         return withContext(dispatcherIO){
             val userId = userIdDataStore.userId ?: throw NullUserException("User id is Null")
             try {
-                var kitsList = kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
-                if (kitsList.isEmpty()) {
+                if (kitDao.getKitCountByUserId(userId) == 0){
                     createKit("Base Home Screen", R.drawable.ic_kit_icon_home)
-                    kitsList = kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
                 }
+                val kitsList = kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
                 kitsList
             } catch ( exception : Exception){
                 throw UserKitException("Cannot get kits for user")
@@ -39,16 +39,19 @@ class KitRepositoryImpl(
         withContext(dispatcherIO){
             val userId = userIdDataStore.userId ?: throw NullUserException("User id is Null")
             try {
-                val kitModel = KitLocalDatabaseModel(
-                    linkedUserId = userId,
-                    name = name,
-                    iconResId = iconResId
-                )
-                kitDao.createKit(kitModel)
+                val kit = buildKit(name, iconResId)
+                kitDao.createKit(converter.entityToLocalModel(kit, userId))
             } catch (exception : Exception){
                 throw KitCreationException("Cannot create new kit")
             }
         }
     }
+
+    private fun buildKit(name: String, iconResId: Int) =
+        Kit(
+            id = 0,
+            name,
+            iconResId
+        )
 
 }
