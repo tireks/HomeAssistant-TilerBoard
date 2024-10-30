@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'com.google.dagger.hilt.android'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -71,6 +74,10 @@ dependencies {
     implementation libs.androidx.room.runtime
     annotationProcessor libs.androidx.room.compiler
     kapt libs.androidx.room.compiler
+
+    implementation libs.hilt.android
+    kapt libs.hilt.android.compiler
+    kapt libs.androidx.hilt.compiler
 
     implementation libs.androidx.security.crypto
 }
