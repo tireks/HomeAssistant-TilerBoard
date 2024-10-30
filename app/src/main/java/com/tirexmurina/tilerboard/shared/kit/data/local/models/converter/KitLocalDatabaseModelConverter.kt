@@ -17,6 +17,7 @@ class KitLocalDatabaseModelConverter {
     fun localModelToEntity(from : KitLocalDatabaseModel) : Kit {
         with(from){
             return Kit(
+                id = id,
                 name = name,
                 iconResId = iconResId
             )

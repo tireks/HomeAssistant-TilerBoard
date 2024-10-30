@@ -12,7 +12,7 @@ interface KitDao {
     suspend fun getKitsByUserId(userId: Long): List<KitLocalDatabaseModel>
 
     @Query("SELECT COUNT(*) FROM kits WHERE linkedUserId = :userId")
-    suspend fun getKitCountByUserId(userId: String): Int
+    suspend fun getKitCountByUserId(userId: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun createKit(kit : KitLocalDatabaseModel): Long
