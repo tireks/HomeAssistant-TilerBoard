@@ -14,8 +14,9 @@ import com.tirexmurina.tilerboard.shared.user.util.UserAccessLevel
 import com.tirexmurina.tilerboard.shared.user.util.UserAuthException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class UserRepositoryImpl (
+class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val tokenDataStore: TokenDataStore,
     private val userIdDataStore : UserIdDataStore,
@@ -39,6 +40,7 @@ class UserRepositoryImpl (
         try {
             val userPresence = userDao.isAnyUserPresent()
             if (!userPresence) {
+                //todo все таки наверное стоит переписать по образу и подобию того как работает создание kit и tile
                 val userModel = UserLocalDatabaseModel(login = login, access = accessLevel)
                 userDao.createUser(userModel)
             }
