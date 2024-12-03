@@ -1,11 +1,14 @@
 package com.tirexmurina.tilerboard.shared.tile.util
 
+/**
+ * добавил сюда - добавь и в TileTypeEnum
+ */
 sealed interface TileType {
 
-    data class TemperatureSimple(val temperature : Boolean) : TileType
+    data class SimpleTemperature(val temperature : Boolean?) : TileType
 
-    data class HumiditySimple(val humidity : Boolean) : TileType
+    data class SimpleHumidity(val humidity : Boolean?) : TileType
 
-    data class BinarySimpleOnOff(val state : BinaryEnumOnOff) : TileType
+    data class SimpleBinaryOnOff(val state : BinaryOnOffEnum?) : TileType
 
 }
