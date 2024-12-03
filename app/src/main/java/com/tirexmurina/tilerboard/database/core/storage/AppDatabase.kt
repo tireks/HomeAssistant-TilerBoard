@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.KitLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
+import com.tirexmurina.tilerboard.shared.tile.data.local.models.SimpleSwitchOnOffDatabaseModel
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.tile.data.local.source.TileDao
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
@@ -15,7 +16,8 @@ import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
     entities = [
         UserLocalDatabaseModel::class,
         KitLocalDatabaseModel::class,
-        TileLocalDatabaseModel::class
+        TileLocalDatabaseModel::class,
+        SimpleSwitchOnOffDatabaseModel::class
                ],
     version = 1,
     exportSchema = false
