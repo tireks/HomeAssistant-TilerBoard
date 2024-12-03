@@ -4,12 +4,10 @@ import com.tirexmurina.tilerboard.database.core.storage.AppDatabase
 import com.tirexmurina.tilerboard.shared.user.data.UserRepositoryImpl
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
 import com.tirexmurina.tilerboard.shared.user.domain.repository.UserRepository
-import com.tirexmurina.tilerboard.shared.user.domain.usecase.AuthUserLocalUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -29,14 +27,4 @@ class UserModule {
         fun provideUsersRepository(repository: UserRepositoryImpl) : UserRepository
     }
 
-}
-
-@Module
-@InstallIn(ViewModelComponent::class)
-class UserDomainModule {
-
-    @Provides
-    fun provideAuthUserLocalUseCase(userRepository: UserRepository) : AuthUserLocalUseCase {
-        return AuthUserLocalUseCase(userRepository)
-    }
 }

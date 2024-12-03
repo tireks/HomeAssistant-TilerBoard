@@ -1,10 +1,12 @@
 package com.tirexmurina.tilerboard.shared.user.data.local.source
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
 
+@Dao
 interface UserDao {
 
     @Query("SELECT id FROM users WHERE login = :login LIMIT 1")
