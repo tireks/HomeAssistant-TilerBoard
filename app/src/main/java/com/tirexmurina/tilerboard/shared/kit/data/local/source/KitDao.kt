@@ -1,11 +1,13 @@
 package com.tirexmurina.tilerboard.shared.kit.data.local.source
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.KitLocalDatabaseModel
 
 
+@Dao
 interface KitDao {
 
     @Query("SELECT * FROM kits WHERE linkedUserId = :userId")

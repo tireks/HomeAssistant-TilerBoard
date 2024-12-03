@@ -1,7 +1,6 @@
 package com.tirexmurina.tilerboard.shared.kit.data
 
 import com.tirexmurina.tilerboard.R
-import com.tirexmurina.tilerboard.shared.kit.data.local.models.KitLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.converter.KitLocalDatabaseModelConverter
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
 import com.tirexmurina.tilerboard.shared.kit.domain.entity.Kit
