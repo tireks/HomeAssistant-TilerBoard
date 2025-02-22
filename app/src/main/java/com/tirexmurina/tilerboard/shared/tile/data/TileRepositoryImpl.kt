@@ -12,6 +12,9 @@ import com.tirexmurina.tilerboard.shared.tile.util.TileType
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleBinaryOnOff
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleHumidity
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleTemperature
+import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_BINARY_ON_OFF
+import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_HUMIDITY
+import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_TEMPERATURE
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -21,19 +24,6 @@ class TileRepositoryImpl @Inject constructor (
     private val dispatcherIO: CoroutineDispatcher,
     private val localDatabaseModelHelper: TileLocalDatabaseModelHelper
 ) : TileRepository{
-
-    /*private var localTileValue = ON*/
-    /*override suspend fun getTilesFlowByKitId(kitId: Long): Flow<List<Tile>> {
-        val basicTilesList : List<Tile> = getTilesByKitId(kitId)
-        val tilesFlow = flow {
-            while (true) {
-                val tilesList = basicTilesList.map { testTileProvider(it) }
-                emit(tilesList)
-                delay(3000L)
-            }
-        }
-        return tilesFlow
-    }*/
 
     override suspend fun getTilesByKitId(kitId: Long): List<Tile> {
         return withContext(dispatcherIO){
@@ -45,10 +35,17 @@ class TileRepositoryImpl @Inject constructor (
                     )
                 }
                 val tilesList = tileDao.getTilesByUserId(kitId).map {
-                    localDatabaseModelHelper.fromLocalModel(
-                        it,
-                        tileDao.getSimpleSwitchOnOffByTileId(it.id)
-                    )
+                    when(it.type){
+                        SIMPLE_TEMPERATURE -> TODO()
+                        SIMPLE_HUMIDITY -> TODO()
+                        SIMPLE_BINARY_ON_OFF -> {
+                            localDatabaseModelHelper.fromLocalModel(
+                                it,
+                                tileDao.getSimpleSwitchOnOffByTileId(it.id)
+                            )
+                        }
+                    }
+
                 }
                 tilesList
             } catch (exception : Exception){
@@ -57,28 +54,6 @@ class TileRepositoryImpl @Inject constructor (
             }
         }
     }
-
-    /*fun testTileProvider(tile: Tile): Tile {
-        //todo говнокод и порнография, придется пересоздавать объекты каждые три секунды,
-        // вероятно придется юзать датаклассы с var чтобы менять напрямую "по ссылке"
-        if (tile.type is SimpleBinaryOnOff) {
-            if (localTileValue == ON) {
-                Log.d("EXCEPTIONSAS", "doing OFF")
-                localTileValue = OFF
-                return Tile(
-                    id = tile.id,
-                    type = SimpleBinaryOnOff(OFF)
-                )
-            } else {
-                Log.d("EXCEPTIONSAS", "doing ON")
-                localTileValue = ON
-                return Tile(
-                    id = tile.id,
-                    type = SimpleBinaryOnOff(ON)
-                )
-            }
-        } else return tile
-    }*/
 
     override suspend fun createTile(type: TileType, kitId: Long) {
         return withContext(dispatcherIO){
