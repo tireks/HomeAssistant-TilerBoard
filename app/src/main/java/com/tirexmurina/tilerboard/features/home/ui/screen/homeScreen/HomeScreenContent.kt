@@ -1,4 +1,4 @@
-package com.tirexmurina.tilerboard.features.home.ui.screen
+package com.tirexmurina.tilerboard.features.home.ui.screen.homeScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

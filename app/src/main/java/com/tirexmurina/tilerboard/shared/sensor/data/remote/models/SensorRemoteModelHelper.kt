@@ -7,7 +7,7 @@ class SensorRemoteModelHelper {
     fun fromRemoteModel(from : SensorRemoteModelTemp) : Sensor {
         return Sensor(
             nameId = from.entity_id,
-
+            state = from.state
         )
     }
 

@@ -4,3 +4,4 @@ class SensorNotFound(errMsg: String) : Exception(errMsg)
 
 class SensorDataFault(errMsg: String) : Exception(errMsg)
 
+
