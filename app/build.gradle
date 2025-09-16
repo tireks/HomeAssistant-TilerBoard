@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.compose.compiler)
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'com.google.dagger.hilt.android'
@@ -9,7 +10,7 @@ plugins {
 
 android {
     namespace 'com.tirexmurina.tilerboard'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.tirexmurina.tilerboard"
@@ -39,9 +40,6 @@ android {
     }
     buildFeatures {
         compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.5.1'
     }
     packaging {
         resources {
