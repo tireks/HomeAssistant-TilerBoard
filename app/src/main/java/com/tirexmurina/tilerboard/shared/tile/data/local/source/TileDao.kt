@@ -11,10 +11,10 @@ import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabas
 interface TileDao {
 
     @Query("SELECT * FROM tiles WHERE linkedKitId = :kitId")
-    suspend fun getTilesByUserId(kitId: Long): List<TileLocalDatabaseModel>
+    suspend fun getTilesByKitId(kitId: Long): List<TileLocalDatabaseModel>
 
     @Query("SELECT COUNT(*) FROM tiles WHERE linkedKitId = :kitId")
-    suspend fun getTilesCountByUserId(kitId: Long): Int
+    suspend fun getTilesCountByKitId(kitId: Long): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun createTile(tile : TileLocalDatabaseModel): Long

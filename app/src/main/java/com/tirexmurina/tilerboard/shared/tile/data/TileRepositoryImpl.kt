@@ -28,13 +28,15 @@ class TileRepositoryImpl @Inject constructor (
     override suspend fun getTilesByKitId(kitId: Long): List<Tile> {
         return withContext(dispatcherIO){
             try {
-                if (tileDao.getTilesCountByUserId(kitId) == 0){
+                //todo вот это ерунда, когда будет экран создания тайлов, нужен будет такой возврат(эксепшн),
+                // чтобы в месте, куда возврат идет - перенаравлять на экран создания тайлов
+                if (tileDao.getTilesCountByKitId(kitId) == 0){
                     createTile(
                         SimpleBinaryOnOff(null),
                         kitId
                     )
                 }
-                val tilesList = tileDao.getTilesByUserId(kitId).map {
+                val tilesList = tileDao.getTilesByKitId(kitId).map {
                     when(it.type){
                         SIMPLE_TEMPERATURE -> TODO()
                         SIMPLE_HUMIDITY -> TODO()
