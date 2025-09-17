@@ -4,4 +4,6 @@ class KitTileException(errMsg: String) : Exception(errMsg)
 
 class TileCreationException(errMsg: String) : Exception(errMsg)
 
-class UnexpectedTileType(errMsg: String) : Exception(errMsg)
+class UnexpectedTileTypeOrValue(errMsg: String) : Exception(errMsg)
+
+class FailedToParseDBTileValue(errMsg: String) : Exception(errMsg)

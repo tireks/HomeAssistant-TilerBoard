@@ -1,20 +1,15 @@
 package com.tirexmurina.tilerboard.shared.tile.data
 
 import android.util.Log
-import com.tirexmurina.tilerboard.shared.tile.data.local.models.SimpleSwitchOnOffDatabaseModel
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.converter.TileLocalDatabaseModelHelper
 import com.tirexmurina.tilerboard.shared.tile.data.local.source.TileDao
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.domain.repository.TileRepository
+import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum
 import com.tirexmurina.tilerboard.shared.tile.util.KitTileException
 import com.tirexmurina.tilerboard.shared.tile.util.TileCreationException
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleBinaryOnOff
-import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleHumidity
-import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleTemperature
-import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_BINARY_ON_OFF
-import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_HUMIDITY
-import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_TEMPERATURE
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -32,22 +27,12 @@ class TileRepositoryImpl @Inject constructor (
                 // чтобы в месте, куда возврат идет - перенаравлять на экран создания тайлов
                 if (tileDao.getTilesCountByKitId(kitId) == 0){
                     createTile(
-                        SimpleBinaryOnOff(null),
+                        SimpleBinaryOnOff(BinaryOnOffEnum.ON),
                         kitId
                     )
                 }
                 val tilesList = tileDao.getTilesByKitId(kitId).map {
-                    when(it.type){
-                        SIMPLE_TEMPERATURE -> TODO()
-                        SIMPLE_HUMIDITY -> TODO()
-                        SIMPLE_BINARY_ON_OFF -> {
-                            localDatabaseModelHelper.fromLocalModel(
-                                it,
-                                tileDao.getSimpleSwitchOnOffByTileId(it.id)
-                            )
-                        }
-                    }
-
+                    localDatabaseModelHelper.fromLocalModel(it)
                 }
                 tilesList
             } catch (exception : Exception){
@@ -63,16 +48,6 @@ class TileRepositoryImpl @Inject constructor (
                 val tile = localDatabaseModelHelper.buildTile(type)
                 val convertedTile = localDatabaseModelHelper.toLocalModel(tile, kitId)
                 val tileId = tileDao.createTile(convertedTile)
-                when(type){
-                    is SimpleBinaryOnOff -> tileDao.createSimpleSwitchOnOff(
-                        SimpleSwitchOnOffDatabaseModel(
-                            linkedTileId = tileId,
-                            state = type.state
-                        )
-                    )
-                    is SimpleHumidity -> TODO()
-                    is SimpleTemperature -> TODO()
-                }
             } catch ( exception : Exception){
                 throw TileCreationException("Problems with tile creation")
             }

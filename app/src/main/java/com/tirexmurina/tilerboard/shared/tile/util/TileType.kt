@@ -5,9 +5,9 @@ package com.tirexmurina.tilerboard.shared.tile.util
  */
 sealed interface TileType {
 
-    data class SimpleTemperature(val temperature : Boolean?) : TileType
+    data class SimpleTemperature(val temperature : Double?) : TileType
 
-    data class SimpleHumidity(val humidity : Boolean?) : TileType
+    data class SimpleHumidity(val humidity : Double?) : TileType
 
     data class SimpleBinaryOnOff(val state : BinaryOnOffEnum?) : TileType
 
