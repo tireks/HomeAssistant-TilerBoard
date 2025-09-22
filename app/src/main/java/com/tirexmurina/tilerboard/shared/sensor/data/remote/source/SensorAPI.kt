@@ -16,7 +16,7 @@ interface SensorAPI {
      * посмотреть, точно ли тут такая же модель приходит, по-моему нет.
      * Там кажется приходит что-то другое, нужна будет еще модель, и еще методы в хэлпер
      */
-    @GET("/states")
+    @GET("states")
     suspend fun getAllSensors() : Response<List<SensorRemoteModelTemp>> //TODO посмотреть, точно ли тут такая же модель приходит, по-моему нет
 
 }

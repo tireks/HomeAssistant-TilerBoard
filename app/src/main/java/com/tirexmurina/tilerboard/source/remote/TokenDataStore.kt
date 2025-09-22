@@ -1,4 +1,4 @@
-package com.tirexmurina.tilerboard.shared.user.data.local.source
+package com.tirexmurina.tilerboard.source.remote
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -24,7 +24,10 @@ class TokenDataStore(context: Context) {
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    fun getAccessToken(): String? = sharedPreferences.getString(LOCAL_TOKEN, null)
+    fun getAccessToken(): String? {
+        //return sharedPreferences.getString(LOCAL_TOKEN, null)
+        return TEST_TOKEN
+    }
 
     fun setAccessToken(token: String) {
         sharedPreferences.edit().putString(LOCAL_TOKEN, token).apply()

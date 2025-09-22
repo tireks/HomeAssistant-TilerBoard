@@ -5,12 +5,12 @@ import com.tirexmurina.tilerboard.shared.sensor.data.remote.source.SensorAPI
 import com.tirexmurina.tilerboard.shared.sensor.domain.entity.Sensor
 import com.tirexmurina.tilerboard.shared.sensor.domain.repository.SensorRepository
 import com.tirexmurina.tilerboard.shared.sensor.util.SensorDataFault
-import com.tirexmurina.tilerboard.shared.util.source.ForbiddenException
-import com.tirexmurina.tilerboard.shared.util.source.NetworkFault
-import com.tirexmurina.tilerboard.shared.util.source.NotFoundException
-import com.tirexmurina.tilerboard.shared.util.source.RequestFault
-import com.tirexmurina.tilerboard.shared.util.source.ResponseFault
-import com.tirexmurina.tilerboard.shared.util.source.UnauthorizedException
+import com.tirexmurina.tilerboard.shared.util.remote.source.ForbiddenException
+import com.tirexmurina.tilerboard.shared.util.remote.source.NetworkFault
+import com.tirexmurina.tilerboard.shared.util.remote.source.NotFoundException
+import com.tirexmurina.tilerboard.shared.util.remote.source.RequestFault
+import com.tirexmurina.tilerboard.shared.util.remote.source.ResponseFault
+import com.tirexmurina.tilerboard.shared.util.remote.source.UnauthorizedException
 import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
@@ -45,9 +45,9 @@ class SensorRepositoryImpl @Inject constructor(
                 handleErrorResponse(response)
             }
         } catch ( e : IOException ){
-            throw NetworkFault("Network error")
+            throw NetworkFault(e.message.toString())
         } catch (e: Exception) {
-            throw RequestFault("Request went wrong")
+            throw RequestFault(e.message.toString())
         }
 
         return sensorDTOList.map { sensorRemoteModelHelper.fromRemoteModel(it) }

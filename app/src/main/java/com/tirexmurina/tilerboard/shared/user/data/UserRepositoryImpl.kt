@@ -1,8 +1,6 @@
 package com.tirexmurina.tilerboard.shared.user.data
 
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
-import com.tirexmurina.tilerboard.shared.user.data.local.source.TEST_TOKEN
-import com.tirexmurina.tilerboard.shared.user.data.local.source.TokenDataStore
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
 import com.tirexmurina.tilerboard.shared.user.domain.repository.UserRepository
@@ -18,7 +16,6 @@ import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
-    private val tokenDataStore: TokenDataStore,
     private val userIdDataStore : UserIdDataStore,
     private val dispatcherIO: CoroutineDispatcher
 ) : UserRepository{
@@ -27,11 +24,10 @@ class UserRepositoryImpl @Inject constructor(
         withContext(dispatcherIO) {
             try {
                 handleUserAuth(login, accessLevel)
-                handleToken()
             } catch (exception: DataBaseCorruptedException) {
-                handleExceptions(UserAuthException("Problem with user Auth"))
+                handleExceptions(UserAuthException(exception.message.toString()))
             } catch (exception: SharedPrefsCorruptedException) {
-                handleExceptions(TokenException("Problem with token"))
+                handleExceptions(TokenException(exception.message.toString()))
             }
         }
     }
@@ -48,18 +44,6 @@ class UserRepositoryImpl @Inject constructor(
             userIdDataStore.userId = userId
         } catch (exception: Exception) {
             throw DataBaseCorruptedException("Problems with DB acquired.")
-        }
-    }
-
-    private fun handleToken() {
-        try {
-            val tokenPresence = tokenDataStore.isAccessTokenSaved()
-            if (!tokenPresence) {
-                tokenDataStore.setAccessToken(TEST_TOKEN)
-            }
-            //TODO куда-то сюда еще должна встраиваться проверка на свежесть токена
-        } catch (exception: Exception){
-            throw SharedPrefsCorruptedException("Problems with SharedPrefs acquired")
         }
     }
 

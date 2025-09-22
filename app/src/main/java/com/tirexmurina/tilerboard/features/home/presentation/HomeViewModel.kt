@@ -7,6 +7,7 @@ import com.tirexmurina.tilerboard.shared.kit.domain.usecase.GetKitsUseCase
 import com.tirexmurina.tilerboard.shared.kit.util.KitCreationException
 import com.tirexmurina.tilerboard.shared.kit.util.NullUserException
 import com.tirexmurina.tilerboard.shared.kit.util.UserKitException
+import com.tirexmurina.tilerboard.shared.sensor.domain.usecase.GetAllSensorsUseCase
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.domain.usecase.GetTilesByKitIdUseCase
 import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum.OFF
@@ -36,7 +37,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor (
     private val authUserLocalUseCase: AuthUserLocalUseCase,
     private val getKitsUseCase: GetKitsUseCase,
-    private val getTilesByKitIdUseCase: GetTilesByKitIdUseCase
+    private val getTilesByKitIdUseCase: GetTilesByKitIdUseCase,
+    private val getAllSensorsUseCase: GetAllSensorsUseCase //todo это тут временно, надо проверить работоспособность
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeState>(HomeState.Initial)
@@ -99,6 +101,7 @@ class HomeViewModel @Inject constructor (
                     dynamicTilesList = DynamicTileList.Content(updatedTiles)
                 )
             }
+            getAllSensorsUseCase()
         }
     }
 

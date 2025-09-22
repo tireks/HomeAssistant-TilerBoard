@@ -2,7 +2,7 @@ package com.tirexmurina.tilerboard.di
 
 import android.content.Context
 import com.tirexmurina.tilerboard.database.core.storage.AppDatabase
-import com.tirexmurina.tilerboard.shared.user.data.local.source.TokenDataStore
+import com.tirexmurina.tilerboard.source.remote.TokenDataStore
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
 import dagger.Module
 import dagger.Provides
