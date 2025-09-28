@@ -7,7 +7,7 @@ import retrofit2.http.Path
 
 interface SensorAPI {
 
-    @GET("/states/{id}")
+    @GET("states/{id}")
     suspend fun getSensorDataById(
         @Path("id") id : String
     ) : Response<SensorRemoteModelTemp> //TODO потом поменять на нормальный

@@ -2,14 +2,14 @@ package com.tirexmurina.tilerboard.shared.sensor.data.remote.models
 
 data class SensorRemoteModelTemp(
     val attributes: Attributes,
-    val context: Context,
+    val context: SensorContext,
     val entity_id: String,
     val last_changed: String,
     val last_updated: String,
     val state: String
 )
 
-data class Context(
+data class SensorContext(
     val id: String,
     val parent_id: Any,
     val user_id: Any

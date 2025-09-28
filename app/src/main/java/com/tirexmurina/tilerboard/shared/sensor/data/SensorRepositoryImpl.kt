@@ -28,9 +28,9 @@ class SensorRepositoryImpl @Inject constructor(
                 handleErrorResponse(response)
             }
         } catch ( e : IOException ){
-            throw NetworkFault("Network error")
+            throw NetworkFault(e.message.toString())
         } catch (e: Exception) {
-            throw RequestFault("Request went wrong")
+            throw RequestFault(e.message.toString())
         }
         return sensorRemoteModelHelper.fromRemoteModel(sensorDTO)
 

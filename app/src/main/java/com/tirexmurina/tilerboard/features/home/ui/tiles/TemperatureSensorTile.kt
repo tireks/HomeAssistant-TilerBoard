@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.tirexmurina.tilerboard.R
 
 @Composable
-fun TemperatureSensorTile(){
+fun TemperatureSensorTile(state: Double?){
         Column (
             modifier = Modifier.fillMaxHeight()
         ){
@@ -33,7 +33,7 @@ fun TemperatureSensorTile(){
                     contentDescription = ""
                 )
                 Text(
-                    text = "Temperature sensor",
+                    text = "$state",
                     fontSize = 20.sp
                 )
             }

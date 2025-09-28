@@ -7,12 +7,14 @@ import com.tirexmurina.tilerboard.shared.kit.domain.usecase.GetKitsUseCase
 import com.tirexmurina.tilerboard.shared.kit.util.KitCreationException
 import com.tirexmurina.tilerboard.shared.kit.util.NullUserException
 import com.tirexmurina.tilerboard.shared.kit.util.UserKitException
-import com.tirexmurina.tilerboard.shared.sensor.domain.usecase.GetAllSensorsUseCase
+import com.tirexmurina.tilerboard.shared.sensor.domain.usecase.GetSensorDataByIdUseCase
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.domain.usecase.GetTilesByKitIdUseCase
 import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum.OFF
 import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum.ON
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleBinaryOnOff
+import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleHumidity
+import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleTemperature
 import com.tirexmurina.tilerboard.shared.user.domain.usecase.AuthUserLocalUseCase
 import com.tirexmurina.tilerboard.shared.user.util.DataBaseCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.SharedPrefsCorruptedException
@@ -23,12 +25,16 @@ import com.tirexmurina.tilerboard.shared.user.util.UserAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,7 +44,7 @@ class HomeViewModel @Inject constructor (
     private val authUserLocalUseCase: AuthUserLocalUseCase,
     private val getKitsUseCase: GetKitsUseCase,
     private val getTilesByKitIdUseCase: GetTilesByKitIdUseCase,
-    private val getAllSensorsUseCase: GetAllSensorsUseCase //todo это тут временно, надо проверить работоспособность
+    private val getSensorDataByIdUseCase: GetSensorDataByIdUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeState>(HomeState.Initial)
@@ -93,21 +99,38 @@ class HomeViewModel @Inject constructor (
     fun subscribeForTiles(kitId : Long){ //todo нужен будет механизм ансабскрайба upd. пока есть вон кенсел джобы, только мне кажется он еще где-то должен быть
         tilesJob?.cancel()
         currentKitId = kitId
-        viewModelScope.launch {
-            val basicTilesList = getTilesByKitIdUseCase(kitId)
-            generateTilesFlow(basicTilesList).collect { updatedTiles ->
+        tilesJob = viewModelScope.launch {
+            val initialTilesList = getTilesByKitIdUseCase(kitId)
+            generateTilesFlow(initialTilesList).collect { updatedTiles ->
                 val state = _uiState.value as? HomeState.Content ?: return@collect
                 _uiState.value = state.copy(
                     dynamicTilesList = DynamicTileList.Content(updatedTiles)
                 )
             }
-            getAllSensorsUseCase()
         }
     }
 
-    private fun generateTilesFlow(basicTilesList: List<Tile>): Flow<List<Tile>> = flow {
-        while (true) {
-            val updatedTiles = basicTilesList.map { testTileProvider(it) }
+    private fun generateTilesFlow(initialTilesList: List<Tile>): Flow<List<Tile>> = flow {
+        while (currentCoroutineContext().isActive) {
+            val updatedTiles = coroutineScope {
+                initialTilesList.map { tile ->
+                    async {
+                        try {
+                            val updatedSensor = getSensorDataByIdUseCase(tile.sensor.entityId)
+                            tile.copy(sensor = updatedSensor)
+                        } catch (e: Exception) {
+                            val tileType = tile.type
+                            when(tileType){
+                                //todo пока тут какая-то ерунда, но нормально пока не делал,
+                                // нет смысла, текущую систему типов надо переделать
+                                is SimpleBinaryOnOff -> tile.copy(type = SimpleBinaryOnOff(null))
+                                is SimpleHumidity -> tile.copy(type = SimpleHumidity(null))
+                                is SimpleTemperature -> tile.copy(type = SimpleTemperature(null))
+                            }
+                        }
+                    }
+                }.awaitAll()
+            }
             emit(updatedTiles)
             delay(3000L) // Обновляем каждые 3 секунды
         }

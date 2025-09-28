@@ -1,8 +1,8 @@
 package com.tirexmurina.tilerboard.shared.tile.data.local.models.converter
 
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabaseModel
+import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileSensorlessDTO
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
-import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleBinaryOnOff
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleHumidity
@@ -13,53 +13,47 @@ import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_HUMIDITY
 import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_TEMPERATURE
 
 class TileLocalDatabaseModelHelper {
-
-    fun buildTile(type: TileType): Tile {
-        return Tile(
-            id = 0,
-            type = type
-        )
-    }
-    fun toLocalModel(from : Tile, kitId : Long) : TileLocalDatabaseModel {
-        val parsedPair = parseTileType(from.type)
+    fun buildTileDbModel(type: TileType, kitId: Long, linkedSensorId: String): TileLocalDatabaseModel {
         return TileLocalDatabaseModel(
             linkedKitId = kitId,
-            type = parsedPair.first,
-            universalContentField = parsedPair.second
+            type = parseTileType(type),
+            linkedSensorEntityId = linkedSensorId
         )
     }
 
-    fun fromLocalModel(from : TileLocalDatabaseModel) : Tile {
+    fun toLocalModel(from : Tile, kitId : Long) : TileLocalDatabaseModel {
+        return TileLocalDatabaseModel(
+            linkedKitId = kitId,
+            type = parseTileType(from.type),
+            linkedSensorEntityId = from.sensor.entityId
+        )
+    }
+
+    fun fromLocalModel(from : TileLocalDatabaseModel) : TileSensorlessDTO {
         with(from){
-            return Tile(
+            return TileSensorlessDTO(
                 id = id,
-                type = rebuildEnumToTileType(type, universalContentField)
+                type = rebuildEnumToTileType(type),
+                linkedSensorEntityId = linkedSensorEntityId
             )
         }
     }
 
-    private fun parseTileType(type: TileType): Pair<TileTypeEnum, String> {
+    private fun parseTileType(type: TileType): TileTypeEnum {
         return when (type) {
-            is SimpleBinaryOnOff -> SIMPLE_BINARY_ON_OFF to type.state.toString()
-            is SimpleHumidity -> SIMPLE_HUMIDITY to type.humidity.toString()
-            is SimpleTemperature -> SIMPLE_TEMPERATURE to type.temperature.toString()
+            is SimpleBinaryOnOff -> SIMPLE_BINARY_ON_OFF
+            is SimpleHumidity -> SIMPLE_HUMIDITY
+            is SimpleTemperature -> SIMPLE_TEMPERATURE
         }
     }
 
     private fun rebuildEnumToTileType(
-        tileTypeEnum: TileTypeEnum,
-        universalValue: String
+        tileTypeEnum: TileTypeEnum
     ): TileType {
         return when (tileTypeEnum) {
-            SIMPLE_TEMPERATURE -> SimpleTemperature(universalValue.toDoubleOrNull())
-            SIMPLE_HUMIDITY -> SimpleHumidity(universalValue.toDoubleOrNull())
-            SIMPLE_BINARY_ON_OFF -> {
-                when (universalValue) {
-                    "ON" -> SimpleBinaryOnOff(BinaryOnOffEnum.ON)
-                    "OFF" -> SimpleBinaryOnOff(BinaryOnOffEnum.OFF)
-                    else -> SimpleBinaryOnOff(null)
-                }
-            }
+            SIMPLE_TEMPERATURE -> SimpleTemperature(null)
+            SIMPLE_HUMIDITY -> SimpleHumidity(null)
+            SIMPLE_BINARY_ON_OFF -> SimpleBinaryOnOff(null)
         }
     }
 

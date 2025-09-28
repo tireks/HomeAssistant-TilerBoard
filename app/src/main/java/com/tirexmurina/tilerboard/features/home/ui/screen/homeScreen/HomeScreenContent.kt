@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.tirexmurina.tilerboard.features.home.presentation.DynamicTileList
 import com.tirexmurina.tilerboard.features.home.presentation.StaticKitList
 import com.tirexmurina.tilerboard.features.home.ui.tiles.SimpleBinaryTile
+import com.tirexmurina.tilerboard.features.home.ui.tiles.TemperatureSensorTile
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
 
 /*@Composable
@@ -226,8 +227,8 @@ fun TilesGrid(tiles: DynamicTileList) {
                 ) {
                     items(tiles.listTiles) { tile ->
                         when (tile.type) {
-                            /*is TileType.TemperatureSensor -> TemperatureSensorTile(tile)
-                            is TileType.PressureSensor -> PressureSensorTile(tile)
+                            is TileType.SimpleTemperature -> TemperatureSensorTile(tile.sensor.state.toDoubleOrNull())
+                            /*is TileType.PressureSensor -> PressureSensorTile(tile)
                             else -> DefaultTile(tile)*/
                             is TileType.SimpleBinaryOnOff -> SimpleBinaryTile(tile.type.state)
                             else -> {}
