@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.tirexmurina.tilerboard.features.home.ui.screen.homeScreen.HomeScreen
+import com.tirexmurina.tilerboard.features.util.AppNavHost
 import com.tirexmurina.tilerboard.ui.theme.TilerBoardTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
+                    AppNavHost()
                 }
             }
         }

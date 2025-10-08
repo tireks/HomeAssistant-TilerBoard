@@ -1,4 +1,4 @@
-package com.tirexmurina.tilerboard.features.home.presentation
+package com.tirexmurina.tilerboard.features.home.presentation.homeScreen
 
 import com.tirexmurina.tilerboard.shared.kit.domain.entity.Kit
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile

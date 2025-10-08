@@ -13,3 +13,5 @@ class NetworkFault(message: String) : Exception(message)
 class RequestFault(errMsg: String) : Exception(errMsg)
 
 class TokenCorruptedOrUnavailable(errMsg: String) : Exception(errMsg)
+
+class SavedUrlUnavailable(errMsg: String) : Exception(errMsg)

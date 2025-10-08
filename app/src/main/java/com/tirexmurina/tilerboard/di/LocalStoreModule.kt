@@ -2,8 +2,9 @@ package com.tirexmurina.tilerboard.di
 
 import android.content.Context
 import com.tirexmurina.tilerboard.database.core.storage.AppDatabase
-import com.tirexmurina.tilerboard.source.remote.TokenDataStore
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
+import com.tirexmurina.tilerboard.source.remote.TokenDataStore
+import com.tirexmurina.tilerboard.source.remote.UrlDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,6 +24,10 @@ class LocalStoreModule {
     @Provides
     @Singleton
     fun provideTokenDataStore(@ApplicationContext app: Context) : TokenDataStore = TokenDataStore(app)
+
+    @Provides
+    @Singleton
+    fun provideUrlDataStore(@ApplicationContext app: Context) : UrlDataStore = UrlDataStore(app)
 
     @Provides
     @Singleton

@@ -1,8 +1,13 @@
 package com.tirexmurina.tilerboard.shared.user.data.local.source
 
-import android.content.Context
-import android.content.SharedPreferences
-
 class UserIdDataStore {
-    var userId: Long? = null
+    private var userId: Long? = null
+
+    fun set(userId: Long) {
+        this.userId = userId
+    }
+
+    fun get() : Long? {
+        return userId
+    }
 }

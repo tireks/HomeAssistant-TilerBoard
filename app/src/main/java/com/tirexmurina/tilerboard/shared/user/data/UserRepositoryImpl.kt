@@ -3,6 +3,7 @@ package com.tirexmurina.tilerboard.shared.user.data
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
+import com.tirexmurina.tilerboard.shared.user.data.remote.source.UserApi
 import com.tirexmurina.tilerboard.shared.user.domain.repository.UserRepository
 import com.tirexmurina.tilerboard.shared.user.util.DataBaseCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.SharedPrefsCorruptedException
@@ -10,6 +11,7 @@ import com.tirexmurina.tilerboard.shared.user.util.TokenException
 import com.tirexmurina.tilerboard.shared.user.util.UnknownException
 import com.tirexmurina.tilerboard.shared.user.util.UserAccessLevel
 import com.tirexmurina.tilerboard.shared.user.util.UserAuthException
+import com.tirexmurina.tilerboard.shared.util.remote.source.RequestFault
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -17,33 +19,35 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val userIdDataStore : UserIdDataStore,
-    private val dispatcherIO: CoroutineDispatcher
+    private val dispatcherIO: CoroutineDispatcher,
+    private val userApi: UserApi
 ) : UserRepository{
-
-    override suspend fun authUserLocal(login: String, accessLevel: UserAccessLevel) {
-        withContext(dispatcherIO) {
-            try {
-                handleUserAuth(login, accessLevel)
-            } catch (exception: DataBaseCorruptedException) {
-                handleExceptions(UserAuthException(exception.message.toString()))
-            } catch (exception: SharedPrefsCorruptedException) {
-                handleExceptions(TokenException(exception.message.toString()))
-            }
+    override suspend fun getId(login: String) : Long? {
+        try {
+            return userDao.getUserId(login)
+        } catch (exception : Exception) {
+            handleExceptions(UserAuthException(exception.message.toString()))
         }
     }
 
-    private suspend fun handleUserAuth(login: String, accessLevel: UserAccessLevel) {
+    override suspend fun create(login: String): Long? {
         try {
-            val userPresence = userDao.isAnyUserPresent()
-            if (!userPresence) {
-                //todo все таки наверное стоит переписать по образу и подобию того как работает создание kit и tile
-                val userModel = UserLocalDatabaseModel(login = login, access = accessLevel)
-                userDao.createUser(userModel)
+            val userModel = UserLocalDatabaseModel(login = login)
+            return userDao.createUser(userModel)
+        } catch (exception : Exception) {
+            handleExceptions(UserAuthException(exception.message.toString()))
+        }
+    }
+
+    override suspend fun isApiAvailable(): Boolean {
+        try {
+            val response = userApi.getAvailability()
+            if (response.isSuccessful) {
+                return response.body()?.message == "API running."
             }
-            val userId = userDao.getUserId(login)
-            userIdDataStore.userId = userId
-        } catch (exception: Exception) {
-            throw DataBaseCorruptedException("Problems with DB acquired.")
+            return false
+        } catch ( e : Exception) {
+            throw RequestFault("Api availability request failed: " + e.message.toString())
         }
     }
 

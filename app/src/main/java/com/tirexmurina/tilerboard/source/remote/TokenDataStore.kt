@@ -9,7 +9,7 @@ class TokenDataStore(context: Context) {
 
     companion object{
         private const val ENCRYPTED_PREFS_NAME = "encrypted_prefs_token"
-        const val LOCAL_TOKEN = "local_token"
+        private const val LOCAL_TOKEN = "local_token"
     }
 
     private val masterKey = MasterKey.Builder(context)
@@ -25,8 +25,7 @@ class TokenDataStore(context: Context) {
     )
 
     fun getAccessToken(): String? {
-        //return sharedPreferences.getString(LOCAL_TOKEN, null)
-        return TEST_TOKEN
+        return sharedPreferences.getString(LOCAL_TOKEN, null)
     }
 
     fun setAccessToken(token: String) {
