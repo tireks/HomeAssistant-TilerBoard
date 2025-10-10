@@ -15,12 +15,10 @@ import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum.ON
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleBinaryOnOff
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleHumidity
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleTemperature
-import com.tirexmurina.tilerboard.shared.user.domain.usecase.AuthUserLocalUseCase
 import com.tirexmurina.tilerboard.shared.user.util.DataBaseCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.SharedPrefsCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.TokenException
 import com.tirexmurina.tilerboard.shared.user.util.UnknownException
-import com.tirexmurina.tilerboard.shared.user.util.UserAccessLevel.Admin
 import com.tirexmurina.tilerboard.shared.user.util.UserAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -41,7 +39,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor (
-    private val authUserLocalUseCase: AuthUserLocalUseCase,
     private val getKitsUseCase: GetKitsUseCase,
     private val getTilesByKitIdUseCase: GetTilesByKitIdUseCase,
     private val getSensorDataByIdUseCase: GetSensorDataByIdUseCase
@@ -61,21 +58,11 @@ class HomeViewModel @Inject constructor (
         )
         viewModelScope.launch {
             try {
-                val authDeferred = async { testAuthUser() }
-                authDeferred.await()
                 getKits()
             } catch (exception: Exception) {
                 errorHandler(exception)
             }
         }
-    }
-
-    private suspend fun testAuthUser(){
-            try {
-                authUserLocalUseCase("testAdmin", Admin)
-            } catch ( exception : Exception) {
-                errorHandler(exception)
-            }
     }
 
     suspend fun getKits(){
