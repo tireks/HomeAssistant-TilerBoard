@@ -3,9 +3,13 @@ package com.tirexmurina.tilerboard.features.home.ui.screen.homeScreen
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,20 +31,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.tirexmurina.tilerboard.R
 import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.DynamicTileList
 import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.HomeState
 import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.HomeViewModel
 import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.StaticKitList
-import com.tirexmurina.tilerboard.features.home.ui.tiles.SimpleBinaryTile
-import com.tirexmurina.tilerboard.features.home.ui.tiles.TemperatureSensorTile
 import com.tirexmurina.tilerboard.features.util.TwoButtonDialog
+import com.tirexmurina.tilerboard.features.util.tiles.SimpleBinaryTile
+import com.tirexmurina.tilerboard.features.util.tiles.TemperatureSensorTile
+import com.tirexmurina.tilerboard.shared.kit.domain.entity.Kit
+import com.tirexmurina.tilerboard.shared.sensor.domain.entity.Sensor
+import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
+import com.tirexmurina.tilerboard.ui.theme.TilerBoardTheme
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    onNavigateSettings: () -> Unit = {},
     //todo другие навигационные пути
 ){
     val viewState by viewModel.uiState.collectAsState()
@@ -60,7 +72,8 @@ fun HomeScreen(
                 tiles = content.dynamicTilesList,
                 onKitSelected = { kitId ->
                     viewModel.subscribeForTiles(kitId)
-                }
+                },
+                onNavigateSettings = { onNavigateSettings() }
             )
         }
         is HomeState.Error -> {
@@ -225,35 +238,83 @@ fun HomeScreenContent(
 fun HomeScreenContent(
     kits: StaticKitList,
     tiles: DynamicTileList,
-    onKitSelected: (Long) -> Unit
+    onKitSelected: (Long) -> Unit,
+    onNavigateSettings: () -> Unit
 ){
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
-        KitsColumn(kits, onKitSelected = onKitSelected)
+        LeftPanel(
+            kits,
+            onKitSelected = { onKitSelected(it) },
+            onNavigateSettings = { onNavigateSettings() }
+        )
         TilesGrid(tiles)
     }
 }
 
 
 @Composable
-fun KitsColumn(kits: StaticKitList, onKitSelected: (Long) -> Unit){
+private fun LeftPanel(
+    kits: StaticKitList,
+    onKitSelected: (Long) -> Unit,
+    onNavigateSettings: () -> Unit
+) {
     Column(
-        modifier = Modifier.width(80.dp),
+        modifier = Modifier
+            .width(80.dp)
+            .fillMaxHeight()
+            .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Колонка китов — занимает почти весь экран
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center // центрирование содержимого
+        ) {
+            KitsColumn(
+                kits = kits,
+                onKitSelected = onKitSelected
+            )
+        }
+
+        // Кнопка настроек прижата к низу
+        Icon(
+            painter = painterResource(id = R.drawable.ic_settings),
+            contentDescription = "Настройки",
+            modifier = Modifier
+                .size(48.dp)
+                .clickable { onNavigateSettings() }
+                .padding(top = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun KitsColumn(
+    kits: StaticKitList,
+    onKitSelected: (Long) -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center // содержимое по центру
     ) {
         when (kits) {
             is StaticKitList.Content -> {
-                LazyColumn {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     items(kits.listKits) { kit ->
                         Icon(
                             painter = painterResource(id = kit.iconResId),
-                            contentDescription = "",
+                            contentDescription = null,
                             modifier = Modifier
                                 .size(48.dp)
-                                .clickable {
-                                    onKitSelected(kit.id)
-                                }
+                                .clickable { onKitSelected(kit.id) }
+                                .padding(8.dp)
                         )
                     }
                 }
@@ -306,7 +367,6 @@ fun TilesGrid(tiles: DynamicTileList) {
     }
 }
 
-/*
 @Preview(
     name = "Nexus_9",
     device = Devices.NEXUS_9,
@@ -315,6 +375,35 @@ fun TilesGrid(tiles: DynamicTileList) {
 @Composable
 fun ScreenPreview(){
     TilerBoardTheme {
-        HomeScreenContent()
+        HomeScreenContent(
+            kits = StaticKitList.Content(
+                listKits = listOf(
+                    Kit(
+                        id = 0,
+                        "name",
+                        R.drawable.ic_kit_icon_home
+                    )
+                )
+            ),
+            tiles = DynamicTileList.Content(
+                listTiles = listOf(
+                    Tile(
+                        id = 0,
+                        type = TileType.SimpleBinaryOnOff(null),
+                        sensor = Sensor(
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "6",
+                            "7",
+                        )
+                    )
+                )
+            ),
+            onKitSelected = {},
+            onNavigateSettings = {}
+        )
     }
-}*/
+}

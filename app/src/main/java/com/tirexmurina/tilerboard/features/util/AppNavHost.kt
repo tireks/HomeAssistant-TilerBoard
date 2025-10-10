@@ -5,10 +5,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tirexmurina.tilerboard.features.home.ui.screen.homeScreen.HomeScreen
+import com.tirexmurina.tilerboard.features.settings.ui.screen.settingsScreen.SettingsScreen
 import com.tirexmurina.tilerboard.features.welcome.ui.screen.welcomeScreen.WelcomeScreen
 
 const val ROUTE_WELCOME = "welcome"
 const val ROUTE_HOME = "home"
+
+const val ROUTE_SETTINGS = "settings"
+
+const val ROUTE_SENSORS_LIST = "sensors_list_screen"
 
 @Composable
 fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
@@ -27,7 +32,15 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
         }
 
         composable(ROUTE_HOME) {
-            HomeScreen()
+            HomeScreen(
+                onNavigateSettings = { navController.navigate(ROUTE_SETTINGS) }
+            )
+        }
+
+        composable (ROUTE_SETTINGS) {
+            SettingsScreen(
+                /*onNavigateSensorsList = { navController.navigate(ROUTE_SENSORS_LIST) }*/
+            )
         }
     }
 }

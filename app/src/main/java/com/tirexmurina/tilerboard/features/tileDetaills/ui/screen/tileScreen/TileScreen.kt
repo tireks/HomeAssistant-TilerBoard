@@ -1,4 +1,4 @@
-package com.tirexmurina.tilerboard.features.home.ui.screen.tileScreen
+package com.tirexmurina.tilerboard.features.tileDetaills.ui.screen.tileScreen
 
 import androidx.compose.runtime.Composable
 

@@ -1,4 +1,4 @@
-package com.tirexmurina.tilerboard.features.home.ui.tiles
+package com.tirexmurina.tilerboard.features.util.tiles
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
