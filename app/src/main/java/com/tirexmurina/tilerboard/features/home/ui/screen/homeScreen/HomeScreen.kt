@@ -97,6 +97,190 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun HomeScreenContent(
+    kits: StaticKitList,
+    tiles: DynamicTileList,
+    onKitSelected: (Long) -> Unit,
+    onNavigateSettings: () -> Unit
+){
+    Row(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LeftPanel(
+            kits,
+            onKitSelected = { onKitSelected(it) },
+            onNavigateSettings = { onNavigateSettings() }
+        )
+
+        // Обработка состояний в HomeScreenContent
+        when (tiles) {
+            is DynamicTileList.Content -> {
+                TilesGrid(tiles = tiles.listTiles)
+            }
+
+            is DynamicTileList.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            is DynamicTileList.Error -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Ошибка загрузки Tiles")
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun LeftPanel(
+    kits: StaticKitList,
+    onKitSelected: (Long) -> Unit,
+    onNavigateSettings: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .width(80.dp)
+            .fillMaxHeight()
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Колонка китов — занимает почти весь экран
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center // центрирование содержимого
+        ) {
+            KitsColumn(
+                kits = kits,
+                onKitSelected = onKitSelected
+            )
+        }
+
+        // Кнопка настроек прижата к низу
+        Icon(
+            painter = painterResource(id = R.drawable.ic_settings),
+            contentDescription = "Настройки",
+            modifier = Modifier
+                .size(48.dp)
+                .clickable { onNavigateSettings() }
+                .padding(top = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun KitsColumn(
+    kits: StaticKitList,
+    onKitSelected: (Long) -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center // содержимое по центру
+    ) {
+        when (kits) {
+            is StaticKitList.Content -> {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    items(kits.listKits) { kit ->
+                        Icon(
+                            painter = painterResource(id = kit.iconResId),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clickable { onKitSelected(kit.id) }
+                                .padding(8.dp)
+                        )
+                    }
+                }
+            }
+
+            is StaticKitList.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            is StaticKitList.Error -> {
+                Text("Ошибка загрузки Kit")
+            }
+        }
+    }
+}
+
+@Composable
+fun TilesGrid(tiles: List<Tile>) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        items(tiles) { tile ->
+            when (tile.type) {
+                is TileType.SimpleTemperature -> TemperatureSensorTile(tile.sensor.state.toDoubleOrNull())
+                is TileType.SimpleBinaryOnOff -> SimpleBinaryTile(tile.type.state)
+                else -> {}
+            }
+        }
+    }
+}
+
+@Preview(
+    name = "Nexus_9",
+    device = Devices.NEXUS_9,
+    showBackground = true
+)
+@Composable
+fun ScreenPreview(){
+    TilerBoardTheme {
+        HomeScreenContent(
+            kits = StaticKitList.Content(
+                listKits = listOf(
+                    Kit(
+                        id = 0,
+                        "name",
+                        R.drawable.ic_kit_icon_home
+                    )
+                )
+            ),
+            tiles = DynamicTileList.Content(
+                listTiles = listOf(
+                    Tile(
+                        id = 0,
+                        type = TileType.SimpleBinaryOnOff(null),
+                        sensor = Sensor(
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "6",
+                            "7",
+                        )
+                    )
+                )
+            ),
+            onKitSelected = {},
+            onNavigateSettings = {}
+        )
+    }
+}
+
 /*@Composable
 fun HomeScreenContent(
 
@@ -233,177 +417,3 @@ fun HomeScreenContent(
         }
     }
 }*/
-
-@Composable
-fun HomeScreenContent(
-    kits: StaticKitList,
-    tiles: DynamicTileList,
-    onKitSelected: (Long) -> Unit,
-    onNavigateSettings: () -> Unit
-){
-    Row(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        LeftPanel(
-            kits,
-            onKitSelected = { onKitSelected(it) },
-            onNavigateSettings = { onNavigateSettings() }
-        )
-        TilesGrid(tiles)
-    }
-}
-
-
-@Composable
-private fun LeftPanel(
-    kits: StaticKitList,
-    onKitSelected: (Long) -> Unit,
-    onNavigateSettings: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .width(80.dp)
-            .fillMaxHeight()
-            .padding(vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Колонка китов — занимает почти весь экран
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center // центрирование содержимого
-        ) {
-            KitsColumn(
-                kits = kits,
-                onKitSelected = onKitSelected
-            )
-        }
-
-        // Кнопка настроек прижата к низу
-        Icon(
-            painter = painterResource(id = R.drawable.ic_settings),
-            contentDescription = "Настройки",
-            modifier = Modifier
-                .size(48.dp)
-                .clickable { onNavigateSettings() }
-                .padding(top = 16.dp)
-        )
-    }
-}
-
-@Composable
-fun KitsColumn(
-    kits: StaticKitList,
-    onKitSelected: (Long) -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center // содержимое по центру
-    ) {
-        when (kits) {
-            is StaticKitList.Content -> {
-                LazyColumn(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    items(kits.listKits) { kit ->
-                        Icon(
-                            painter = painterResource(id = kit.iconResId),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clickable { onKitSelected(kit.id) }
-                                .padding(8.dp)
-                        )
-                    }
-                }
-            }
-
-            is StaticKitList.Loading -> {
-                CircularProgressIndicator()
-            }
-
-            is StaticKitList.Error -> {
-                Text("Ошибка загрузки Kit")
-            }
-        }
-    }
-}
-
-@Composable
-fun TilesGrid(tiles: DynamicTileList) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        when (tiles) {
-            is DynamicTileList.Content -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(tiles.listTiles) { tile ->
-                        when (tile.type) {
-                            is TileType.SimpleTemperature -> TemperatureSensorTile(tile.sensor.state.toDoubleOrNull())
-                            /*is TileType.PressureSensor -> PressureSensorTile(tile)
-                            else -> DefaultTile(tile)*/
-                            is TileType.SimpleBinaryOnOff -> SimpleBinaryTile(tile.type.state)
-                            else -> {}
-                        }
-                    }
-                }
-            }
-
-            is DynamicTileList.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            }
-
-            is DynamicTileList.Error -> {
-                Text("Ошибка загрузки Tiles")
-            }
-        }
-    }
-}
-
-@Preview(
-    name = "Nexus_9",
-    device = Devices.NEXUS_9,
-    showBackground = true
-)
-@Composable
-fun ScreenPreview(){
-    TilerBoardTheme {
-        HomeScreenContent(
-            kits = StaticKitList.Content(
-                listKits = listOf(
-                    Kit(
-                        id = 0,
-                        "name",
-                        R.drawable.ic_kit_icon_home
-                    )
-                )
-            ),
-            tiles = DynamicTileList.Content(
-                listTiles = listOf(
-                    Tile(
-                        id = 0,
-                        type = TileType.SimpleBinaryOnOff(null),
-                        sensor = Sensor(
-                            "1",
-                            "2",
-                            "3",
-                            "4",
-                            "5",
-                            "6",
-                            "7",
-                        )
-                    )
-                )
-            ),
-            onKitSelected = {},
-            onNavigateSettings = {}
-        )
-    }
-}
