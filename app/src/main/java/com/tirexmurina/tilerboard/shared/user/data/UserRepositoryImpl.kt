@@ -1,19 +1,15 @@
 package com.tirexmurina.tilerboard.shared.user.data
 
+import android.util.Log
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
 import com.tirexmurina.tilerboard.shared.user.data.remote.source.UserApi
 import com.tirexmurina.tilerboard.shared.user.domain.repository.UserRepository
-import com.tirexmurina.tilerboard.shared.user.util.DataBaseCorruptedException
-import com.tirexmurina.tilerboard.shared.user.util.SharedPrefsCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.TokenException
 import com.tirexmurina.tilerboard.shared.user.util.UnknownException
-import com.tirexmurina.tilerboard.shared.user.util.UserAccessLevel
 import com.tirexmurina.tilerboard.shared.user.util.UserAuthException
-import com.tirexmurina.tilerboard.shared.util.remote.source.RequestFault
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -47,7 +43,8 @@ class UserRepositoryImpl @Inject constructor(
             }
             return false
         } catch ( e : Exception) {
-            throw RequestFault("Api availability request failed: " + e.message.toString())
+            Log.d("EXCEPTIONSAS", "Api availability request failed: " + e.message.toString())
+            return false
         }
     }
 
