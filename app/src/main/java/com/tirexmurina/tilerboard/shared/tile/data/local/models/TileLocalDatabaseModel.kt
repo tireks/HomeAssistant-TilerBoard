@@ -9,5 +9,6 @@ data class TileLocalDatabaseModel(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val linkedKitId: Long,
     val type: TileTypeEnum,
+    val name: String?,
     val linkedSensorEntityId: String
 )

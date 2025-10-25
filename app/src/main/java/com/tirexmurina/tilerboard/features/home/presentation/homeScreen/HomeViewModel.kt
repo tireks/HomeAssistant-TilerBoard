@@ -104,7 +104,10 @@ class HomeViewModel @Inject constructor (
                     async {
                         try {
                             val updatedSensor = getSensorDataByIdUseCase(tile.sensor.entityId)
-                            tile.copy(sensor = updatedSensor)
+                            tile.copy(
+                                sensor = updatedSensor,
+                                type = updateTileTypeWithState(updatedSensor.state, tile.type)
+                            )
                         } catch (e: Exception) {
                             val tileType = tile.type
                             when(tileType){
@@ -113,6 +116,7 @@ class HomeViewModel @Inject constructor (
                                 is SimpleBinaryOnOff -> tile.copy(type = SimpleBinaryOnOff(null))
                                 is SimpleHumidity -> tile.copy(type = SimpleHumidity(null))
                                 is SimpleTemperature -> tile.copy(type = SimpleTemperature(null))
+                                is SimpleNoTypeRaw -> tile.copy(type = SimpleNoTypeRaw(null))
                             }
                         }
                     }
@@ -129,6 +133,20 @@ class HomeViewModel @Inject constructor (
             return tile.copy(type = SimpleBinaryOnOff(localTileValue))
         }
         return tile
+    }
+
+    private fun updateTileTypeWithState(state: String, tileType: TileType): TileType{
+        return when(tileType) {
+            is SimpleBinaryOnOff -> {
+                SimpleBinaryOnOff(chooseBinaryOnOffEnum(state))
+            }
+
+            is SimpleHumidity -> SimpleHumidity(humidity = state.toDoubleOrNull())
+
+            is SimpleNoTypeRaw -> SimpleNoTypeRaw(state = state)
+
+            is SimpleTemperature -> SimpleTemperature(temperature = state.toDoubleOrNull())
+        }
     }
 
     private fun errorHandler(exception: Exception) {

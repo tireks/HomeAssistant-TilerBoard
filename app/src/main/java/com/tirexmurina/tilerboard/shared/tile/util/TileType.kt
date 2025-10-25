@@ -11,4 +11,6 @@ sealed interface TileType {
 
     data class SimpleBinaryOnOff(val state : BinaryOnOffEnum?) : TileType
 
+    data class SimpleNoTypeRaw(val state : String?) : TileType
+
 }

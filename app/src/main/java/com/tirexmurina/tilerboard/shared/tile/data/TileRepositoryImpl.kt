@@ -27,7 +27,8 @@ class TileRepositoryImpl @Inject constructor (
                     createTile(
                         TileType.SimpleTemperature(null),
                         kitId,
-                        "sensor.temp_1"
+                        "sensor.temp_1",
+                        null
                     )
                 }
                 val tilesListSensorless = tileDao.getTilesByKitId(kitId).map {
@@ -41,10 +42,10 @@ class TileRepositoryImpl @Inject constructor (
         }
     }
 
-    override suspend fun createTile(type: TileType, kitId: Long, linkedSensorId: String) {
+    override suspend fun createTile(type: TileType, kitId: Long, linkedSensorId: String, name: String?) {
         return withContext(dispatcherIO){
             try {
-                val tileDBModel = localDatabaseModelHelper.buildTileDbModel(type, kitId, linkedSensorId)
+                val tileDBModel = localDatabaseModelHelper.buildTileDbModel(type, kitId, linkedSensorId, name)
                 tileDao.createTile(tileDBModel)
             } catch ( exception : Exception){
                 throw TileCreationException(exception.message.toString())

@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -41,8 +38,7 @@ import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.HomeStat
 import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.HomeViewModel
 import com.tirexmurina.tilerboard.features.home.presentation.homeScreen.StaticKitList
 import com.tirexmurina.tilerboard.features.util.TwoButtonDialog
-import com.tirexmurina.tilerboard.features.util.tiles.SimpleBinaryTile
-import com.tirexmurina.tilerboard.features.util.tiles.TemperatureSensorTile
+import com.tirexmurina.tilerboard.features.util.tileCards.TileCardsGrid
 import com.tirexmurina.tilerboard.shared.kit.domain.entity.Kit
 import com.tirexmurina.tilerboard.shared.sensor.domain.entity.Sensor
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
@@ -116,7 +112,7 @@ fun HomeScreenContent(
         // Обработка состояний в HomeScreenContent
         when (tiles) {
             is DynamicTileList.Content -> {
-                TilesGrid(tiles = tiles.listTiles)
+                TileCardsGrid(tiles = tiles.listTiles)
             }
 
             is DynamicTileList.Loading -> {
@@ -155,7 +151,7 @@ private fun LeftPanel(
         modifier = Modifier
             .width(80.dp)
             .fillMaxHeight()
-            .padding(vertical = 16.dp),
+            .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Колонка китов — занимает почти весь экран
@@ -222,24 +218,6 @@ fun KitsColumn(
     }
 }
 
-@Composable
-fun TilesGrid(tiles: List<Tile>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        items(tiles) { tile ->
-            when (tile.type) {
-                is TileType.SimpleTemperature -> TemperatureSensorTile(tile.sensor.state.toDoubleOrNull())
-                is TileType.SimpleBinaryOnOff -> SimpleBinaryTile(tile.type.state)
-                else -> {}
-            }
-        }
-    }
-}
-
 @Preview(
     name = "Nexus_9",
     device = Devices.NEXUS_9,
@@ -262,7 +240,8 @@ fun ScreenPreview(){
                 listTiles = listOf(
                     Tile(
                         id = 0,
-                        type = TileType.SimpleBinaryOnOff(null),
+                        type = TileType.SimpleTemperature(100.0),
+                        name = null,
                         sensor = Sensor(
                             "1",
                             "2",

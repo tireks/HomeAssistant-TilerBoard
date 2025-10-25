@@ -16,6 +16,7 @@ class GetTilesByKitIdUseCase @Inject constructor (
             val tile = Tile(
                 id = it.id,
                 type = it.type,
+                name = it.name,
                 sensor = sensor
             )
             tile
