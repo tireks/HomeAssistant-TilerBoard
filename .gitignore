@@ -28,3 +28,5 @@ google-services.json
 
 # Android Profiling
 *.hprof
+/app/src/main/java/com/tirexmurina/tilerboard/shared/user/data/local/source/TestTokenFile.kt
+/app/src/main/java/com/tirexmurina/tilerboard/source/remote/TestTokenFile.kt
