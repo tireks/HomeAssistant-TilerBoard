@@ -37,6 +37,7 @@ fun SettingsScreen(
     // но сейчас экран супер простой, поэтому вьюмодель вообще пустая и ничего не умеет
     SettingsScreenContent(
         onNavigateSensorsList = { onNavigateSensorsList() },
+        onNavigateAddTile = { onNavigateAddTile() },
         onNavigateBack = { onNavigateBack() }
     )
 }

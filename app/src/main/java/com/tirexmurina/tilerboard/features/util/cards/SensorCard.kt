@@ -1,4 +1,4 @@
-package com.tirexmurina.tilerboard.features.sensorsList.ui.composables
+package com.tirexmurina.tilerboard.features.util.cards
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -38,8 +38,8 @@ fun SensorCard(
                 .fillMaxWidth()
         ) {
             SensorField(label = "Entity ID", value = sensor.entityId)
-            SensorField(label = "Last Changed", value = sensor.lastChanged)
-            SensorField(label = "Last Updated", value = sensor.lastUpdated)
+            /*SensorField(label = "Last Changed", value = sensor.lastChanged)
+            SensorField(label = "Last Updated", value = sensor.lastUpdated)*/
             SensorField(label = "State", value = sensor.state)
             SensorField(label = "Device Class", value = sensor.deviceClass)
             SensorField(label = "Friendly Name", value = sensor.friendlyName)
@@ -49,7 +49,10 @@ fun SensorCard(
 }
 
 @Composable
-private fun SensorField(label: String, value: String) {
+private fun SensorField(
+    label: String,
+    value: String
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

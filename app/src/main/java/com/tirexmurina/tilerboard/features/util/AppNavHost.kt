@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tirexmurina.tilerboard.features.home.ui.screen.homeScreen.HomeScreen
 import com.tirexmurina.tilerboard.features.sensorsList.ui.screen.sensorsListScreen.SensorsListScreen
 import com.tirexmurina.tilerboard.features.settings.ui.screen.settingsScreen.SettingsScreen
+import com.tirexmurina.tilerboard.features.tileCreate.ui.TileCreateScreen
 import com.tirexmurina.tilerboard.features.welcome.ui.screen.welcomeScreen.WelcomeScreen
 
 const val ROUTE_WELCOME = "welcome"
@@ -15,6 +16,8 @@ const val ROUTE_HOME = "home"
 const val ROUTE_SETTINGS = "settings"
 
 const val ROUTE_SENSORS_LIST = "sensors_list_screen"
+
+const val ROUTE_TILE_CREATE = "tile_create_list"
 
 @Composable
 fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
@@ -41,13 +44,25 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
         composable (ROUTE_SETTINGS) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateSensorsList = { navController.navigate(ROUTE_SENSORS_LIST) }
+                onNavigateSensorsList = { navController.navigate(ROUTE_SENSORS_LIST) },
+                onNavigateAddTile = { navController.navigate(ROUTE_TILE_CREATE) }
             )
         }
 
         composable (ROUTE_SENSORS_LIST) {
             SensorsListScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(ROUTE_TILE_CREATE) {
+            TileCreateScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateHomeAndRestart = {
+                    navController.navigate(ROUTE_HOME) {
+                        popUpTo(0) { inclusive = true } // 👈 очищает весь back stack
+                    }
+                }
             )
         }
     }

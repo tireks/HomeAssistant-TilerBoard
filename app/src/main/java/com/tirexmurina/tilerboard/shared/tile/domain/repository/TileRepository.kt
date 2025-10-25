@@ -7,6 +7,6 @@ interface TileRepository {
 
     suspend fun getTilesByKitId(kitId : Long) : List<TileSensorlessDTO>
 
-    suspend fun createTile(type: TileType, kitId: Long, linkedSensorId : String)
+    suspend fun createTile(type: TileType, kitId: Long, linkedSensorId : String, name: String?)
 
 }

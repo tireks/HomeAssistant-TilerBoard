@@ -12,9 +12,12 @@ import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.domain.usecase.GetTilesByKitIdUseCase
 import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum.OFF
 import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum.ON
+import com.tirexmurina.tilerboard.shared.tile.util.TileType
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleBinaryOnOff
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleHumidity
+import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleNoTypeRaw
 import com.tirexmurina.tilerboard.shared.tile.util.TileType.SimpleTemperature
+import com.tirexmurina.tilerboard.shared.tile.util.chooseBinaryOnOffEnum
 import com.tirexmurina.tilerboard.shared.user.util.DataBaseCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.SharedPrefsCorruptedException
 import com.tirexmurina.tilerboard.shared.user.util.TokenException
