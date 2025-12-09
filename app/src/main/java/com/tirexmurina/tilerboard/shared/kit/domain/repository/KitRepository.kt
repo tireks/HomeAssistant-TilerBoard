@@ -8,4 +8,6 @@ interface KitRepository {
 
     suspend fun createKit(name: String, iconResId : Int)
 
+    suspend fun getKitsNumber(): Int
+
 }

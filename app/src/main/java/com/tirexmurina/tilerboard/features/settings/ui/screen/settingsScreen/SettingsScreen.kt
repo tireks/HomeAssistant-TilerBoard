@@ -31,6 +31,7 @@ fun SettingsScreen(
     onNavigateSensorsList: () -> Unit = {},
     onNavigateAddTile: () -> Unit = {},
     onNavigateKitSettings: () -> Unit = {},
+    onNavigateAddKit:() -> Unit = {},
     //сюда пойдут прочие навигационные вызовы
 ) {
     //когда нибудь здесь будет обработка стейта с вьюмодели,
@@ -38,7 +39,8 @@ fun SettingsScreen(
     SettingsScreenContent(
         onNavigateSensorsList = { onNavigateSensorsList() },
         onNavigateAddTile = { onNavigateAddTile() },
-        onNavigateBack = { onNavigateBack() }
+        onNavigateBack = { onNavigateBack() },
+        onNavigateAddKit = { onNavigateAddKit() }
     )
 }
 
@@ -48,11 +50,13 @@ fun SettingsScreenContent(
     onNavigateSensorsList: () -> Unit = {},
     onNavigateAddTile: () -> Unit = {},
     onNavigateKitSettings: () -> Unit = {},
+    onNavigateAddKit:() -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
     val items = listOf(
         "Список всех сенсоров" to onNavigateSensorsList,
         "Добавление тайла в набор" to onNavigateAddTile,
+        "Добавить новый набор" to onNavigateAddKit,
         "Настройки текущего набора" to onNavigateKitSettings
     )
 

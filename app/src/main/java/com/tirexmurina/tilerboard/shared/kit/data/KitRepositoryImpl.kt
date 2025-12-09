@@ -29,7 +29,7 @@ class KitRepositoryImpl @Inject constructor(
                 val kitsList = kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
                 kitsList
             } catch ( exception : Exception){
-                throw UserKitException("Cannot get kits for user")
+                throw UserKitException("Cannot get kits for user. " + exception.message.toString())
             }
         }
     }
@@ -41,8 +41,15 @@ class KitRepositoryImpl @Inject constructor(
                 val kit = buildKit(name, iconResId)
                 kitDao.createKit(converter.entityToLocalModel(kit, userId))
             } catch (exception : Exception){
-                throw KitCreationException("Cannot create new kit")
+                throw KitCreationException("Cannot create new kit. " + exception.message.toString())
             }
+        }
+    }
+
+    override suspend fun getKitsNumber(): Int {
+        return withContext(dispatcherIO){
+            val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
+            kitDao.getKitCountByUserId(userId)
         }
     }
 
