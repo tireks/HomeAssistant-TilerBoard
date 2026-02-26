@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.KitLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
+import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileKitCrossRefLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.tile.data.local.source.TileDao
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
@@ -15,9 +16,10 @@ import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
     entities = [
         UserLocalDatabaseModel::class,
         KitLocalDatabaseModel::class,
-        TileLocalDatabaseModel::class
+        TileLocalDatabaseModel::class,
+        TileKitCrossRefLocalDatabaseModel::class
                ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
