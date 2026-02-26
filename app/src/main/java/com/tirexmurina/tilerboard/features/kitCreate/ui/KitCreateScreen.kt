@@ -143,7 +143,7 @@ fun KitCreateScreenContent(
             .fillMaxSize()
     ) {
         TopAppBar(
-            title = { Text("Создание тайла") },
+            title = { Text("Создание набора") },
             navigationIcon = {
                 IconButton(onClick = { onNavigateBack() }) {
                     Icon(
@@ -197,7 +197,14 @@ fun KitCreateScreenContent(
                         )
                     }
                 }
-
+                Button(
+                    onClick = { onSaveButtonClicked(kitName) },
+                    modifier = Modifier
+                        .weight(0.6f)
+                        .align(Alignment.CenterVertically),
+                ) {
+                    Text("Выбрать тайл")
+                }
                 Button(
                     onClick = { onSaveButtonClicked(kitName) },
                     modifier = Modifier
