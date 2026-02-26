@@ -14,9 +14,8 @@ import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_NO_TYPE_R
 import com.tirexmurina.tilerboard.shared.tile.util.TileTypeEnum.SIMPLE_TEMPERATURE
 
 class TileLocalDatabaseModelHelper {
-    fun buildTileDbModel(type: TileType, kitId: Long, linkedSensorId: String, name: String?): TileLocalDatabaseModel {
+    fun buildTileDbModel(type: TileType, linkedSensorId: String, name: String?): TileLocalDatabaseModel {
         return TileLocalDatabaseModel(
-            linkedKitId = kitId,
             type = parseTileType(type),
             linkedSensorEntityId = linkedSensorId,
             name = name

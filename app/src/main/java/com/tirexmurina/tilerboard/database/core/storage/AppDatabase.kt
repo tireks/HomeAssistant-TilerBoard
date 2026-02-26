@@ -10,14 +10,16 @@ import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabas
 import com.tirexmurina.tilerboard.shared.tile.data.local.source.TileDao
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
+import com.tirexmurina.tilerboard.shared.util.local.source.TileKitCrossRefLocalDatabaseModel
 
 @Database(
     entities = [
         UserLocalDatabaseModel::class,
         KitLocalDatabaseModel::class,
-        TileLocalDatabaseModel::class
+        TileLocalDatabaseModel::class,
+        TileKitCrossRefLocalDatabaseModel::class
                ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
