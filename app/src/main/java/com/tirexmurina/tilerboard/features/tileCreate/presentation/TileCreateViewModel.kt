@@ -56,7 +56,7 @@ class TileCreateViewModel @Inject constructor(
                 //todo работа с китом временная, пока не сделаю полнофункциональную работу с китами (пока их хотя бы не будет несколько)
                 val kitList = getKitsUseCase()
                 if (kitList.isNotEmpty()) {
-                    kitIdLocalStore = kitList.first().id
+                    kitIdLocalStore = kitList.last().id
                 } else {
                     throw KitTileException("Набор не найден. Что-то пошло не так")
                 }
