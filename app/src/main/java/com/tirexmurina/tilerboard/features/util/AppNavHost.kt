@@ -11,6 +11,7 @@ import com.tirexmurina.tilerboard.features.kitCreate.ui.KitCreateScreen
 import com.tirexmurina.tilerboard.features.sensorsList.ui.screen.sensorsListScreen.SensorsListScreen
 import com.tirexmurina.tilerboard.features.settings.ui.screen.settingsScreen.SettingsScreen
 import com.tirexmurina.tilerboard.features.tileCreate.ui.TileCreateScreen
+import com.tirexmurina.tilerboard.features.tilesList.ui.screen.tilesListScreen.TilesListScreen
 import com.tirexmurina.tilerboard.features.welcome.ui.screen.welcomeScreen.WelcomeScreen
 
 const val ROUTE_WELCOME = "welcome"
@@ -19,6 +20,7 @@ const val ROUTE_SETTINGS = "settings"
 const val ROUTE_SENSORS_LIST = "sensors_list_screen"
 const val ROUTE_TILE_CREATE = "tile_create"
 const val ROUTE_KIT_CREATE = "kit_create"
+const val ROUTE_TILES_LIST = "tiles_list"
 
 @Composable
 fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
@@ -39,11 +41,12 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
 
         composable(ROUTE_HOME) {
             HomeScreen(
-                onNavigateSettings = { navController.navigate(ROUTE_SETTINGS) }
+                onNavigateSettings = { navController.navigate(ROUTE_SETTINGS) },
+                onNavigateCreateKit = { navController.navigate(ROUTE_KIT_CREATE) }
             )
         }
 
-        composable (ROUTE_SETTINGS) {
+        composable(ROUTE_SETTINGS) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateSensorsList = { navController.navigate(ROUTE_SENSORS_LIST) },
@@ -52,28 +55,32 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
             )
         }
 
-        composable (ROUTE_SENSORS_LIST) {
-            SensorsListScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+        composable(ROUTE_SENSORS_LIST) {
+            SensorsListScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(ROUTE_TILE_CREATE) {
-            TileCreateScreen(
+            TileCreateScreen(onNavigateBack = { navController.popBackStack() }, onTileSaved = { navController.popBackStack() })
+        }
+
+        composable(ROUTE_TILES_LIST) {
+            TilesListScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateHomeAndRestart = {
-                    navController.navigate(ROUTE_HOME) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                onCreateTile = { navController.navigate(ROUTE_TILE_CREATE) },
+                onTileSelected = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("selectedTileId", it)
+                    navController.popBackStack()
                 }
             )
         }
 
-        composable(ROUTE_KIT_CREATE){
+        composable(ROUTE_KIT_CREATE) {
             KitCreateScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onCloseApp = { activity?.finish() },
-                onNavigateAddTile = { navController.navigate(ROUTE_TILE_CREATE) }
+                onNavigateAddTile = { navController.navigate(ROUTE_TILES_LIST) }
             )
         }
     }
