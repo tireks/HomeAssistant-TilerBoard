@@ -19,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import com.tirexmurina.tilerboard.ui.theme.TilerBoardTheme
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateSettings: () -> Unit = {},
+    onNavigateCreateKit: () -> Unit = {}
     //todo другие навигационные пути
 ){
     val viewState by viewModel.uiState.collectAsState()
@@ -58,6 +60,14 @@ fun HomeScreen(
 
     BackHandler {
         showExitDialog = true
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                HomeViewModel.HomeEvent.NavigateToCreateKit -> onNavigateCreateKit()
+            }
+        }
     }
 
     when(viewState){

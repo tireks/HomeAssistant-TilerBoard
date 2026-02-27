@@ -24,12 +24,15 @@ class KitRepositoryImpl @Inject constructor(
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             try {
                 if (kitDao.getKitCountByUserId(userId) == 0){
-                    createKit("Base Home Screen", R.drawable.ic_kit_icon_home)
+                    //createKit("Base Home Screen", R.drawable.ic_kit_icon_home)
+                    throw NeedFirstKitException("User has no kits")
                 }
                 val kitsList = kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
                 kitsList
             } catch ( exception : Exception){
-                throw UserKitException("Cannot get kits for user. " + exception.message.toString())
+                if ( exception is NeedFirstKitException) {
+                    throw exception
+                } else throw UserKitException("Cannot get kits for user. " + exception.message.toString())
             }
         }
     }

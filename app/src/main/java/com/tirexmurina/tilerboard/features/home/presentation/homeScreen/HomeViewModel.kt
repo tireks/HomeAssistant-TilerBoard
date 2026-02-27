@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tirexmurina.tilerboard.shared.kit.domain.usecase.GetKitsUseCase
 import com.tirexmurina.tilerboard.shared.kit.util.KitCreationException
+import com.tirexmurina.tilerboard.shared.kit.util.NeedFirstKitException
 import com.tirexmurina.tilerboard.shared.kit.util.NullUserException
 import com.tirexmurina.tilerboard.shared.kit.util.UserKitException
 import com.tirexmurina.tilerboard.shared.sensor.domain.usecase.GetSensorDataByIdUseCase
@@ -31,8 +32,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
@@ -49,6 +52,9 @@ class HomeViewModel @Inject constructor (
 
     private val _uiState = MutableStateFlow<HomeState>(HomeState.Initial)
     val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<HomeEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     private var currentKitId: Long? = null
     private var tilesJob: Job? = null
@@ -79,6 +85,9 @@ class HomeViewModel @Inject constructor (
                     subscribeForTiles(kitList.first().id)
                 }
             } catch ( exception : Exception){
+                if (exception is NeedFirstKitException) {
+                    _uiEvent.emit(HomeEvent.NavigateToCreateKit)
+                }
                 errorHandler(exception)
             }
 
@@ -156,30 +165,34 @@ class HomeViewModel @Inject constructor (
         _uiState.value = HomeState.Error.TestError //todo пока временно одна ошибка на все
         when(exception){
             is NullUserException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION NULL USER")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION NULL USER ${exception.message}")
             }
             is KitCreationException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION KIT CREATION")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION KIT CREATION ${exception.message}")
             }
             is UserKitException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION USER KIT EXCEPTION")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION USER KIT EXCEPTION + ${exception.message}")
             }
             is SharedPrefsCorruptedException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION SHARED PREFS SHIT")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION SHARED PREFS SHIT ${exception.message}")
             }
             is DataBaseCorruptedException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION DATABASE SHIT")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION DATABASE SHIT ${exception.message}")
             }
             is UserAuthException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION USER AUTH")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION USER AUTH ${exception.message}")
             }
             is TokenException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION TOKEN SHIT")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION TOKEN SHIT ${exception.message}")
             }
             is UnknownException -> {
-                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION DUNNO")
+                Log.d("EXCEPTIONSAS","FOCKING EXCOPTION DUNNO ${exception.message}")
             }
         }
+    }
+
+    sealed interface HomeEvent {
+        data object NavigateToCreateKit : HomeEvent
     }
      
 }
