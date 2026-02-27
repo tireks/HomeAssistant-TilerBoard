@@ -1,11 +1,11 @@
 package com.tirexmurina.tilerboard.shared.kit.data
 
-import com.tirexmurina.tilerboard.R
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.converter.KitLocalDatabaseModelConverter
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
 import com.tirexmurina.tilerboard.shared.kit.domain.entity.Kit
 import com.tirexmurina.tilerboard.shared.kit.domain.repository.KitRepository
 import com.tirexmurina.tilerboard.shared.kit.util.KitCreationException
+import com.tirexmurina.tilerboard.shared.kit.util.NeedFirstKitException
 import com.tirexmurina.tilerboard.shared.kit.util.NullUserException
 import com.tirexmurina.tilerboard.shared.kit.util.UserKitException
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserIdDataStore
@@ -37,12 +37,12 @@ class KitRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createKit(name: String, iconResId: Int) {
-        withContext(dispatcherIO){
+    override suspend fun createKit(name: String, iconResId: Int): Long {
+        return withContext(dispatcherIO){
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             try {
                 val kit = buildKit(name, iconResId)
-                kitDao.createKit(converter.entityToLocalModel(kit, userId))
+                return@withContext kitDao.createKit(converter.entityToLocalModel(kit, userId))
             } catch (exception : Exception){
                 throw KitCreationException("Cannot create new kit. " + exception.message.toString())
             }

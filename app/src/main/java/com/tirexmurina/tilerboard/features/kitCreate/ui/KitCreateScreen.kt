@@ -28,25 +28,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tirexmurina.tilerboard.R
 import com.tirexmurina.tilerboard.features.kitCreate.presentation.KitCreateViewModel
-import com.tirexmurina.tilerboard.features.kitCreate.presentation.KitCreateViewModel.KitCreateEvent
-import com.tirexmurina.tilerboard.features.kitCreate.presentation.KitCreateViewModel.KitCreateState
 import com.tirexmurina.tilerboard.features.tileCreate.ui.composables.SimpleIconSelectorLocked
 import com.tirexmurina.tilerboard.features.util.LoadingScreen
 import com.tirexmurina.tilerboard.features.util.SingleButtonDialog
 import com.tirexmurina.tilerboard.features.util.TwoButtonDialog
-import com.tirexmurina.tilerboard.ui.theme.TilerBoardTheme
+import com.tirexmurina.tilerboard.features.util.tileCards.SimpleNoTypeTileCard
 
 @Composable
 fun KitCreateScreen(
     viewModel: KitCreateViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
-    onCloseApp:() -> Unit = {}, //todo на уровне над контентом нужно будет решать, какой из этих двух методов передавать вниз, в зависимости от ситуации
+    onCloseApp: () -> Unit = {},
     onNavigateAddTile: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -56,72 +52,54 @@ fun KitCreateScreen(
     var errorDialogText = ""
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.startScreen()
-    }
+    LaunchedEffect(Unit) { viewModel.startScreen() }
 
     BackHandler {
-        if (closeAppState.needCloseApp){
-            showExitDialog = true
-        }
+        if (closeAppState.needCloseApp) showExitDialog = true else viewModel.askForBackNavigation()
     }
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                KitCreateEvent.NavigateToTileCreate -> onNavigateAddTile()
-                is KitCreateEvent.ShowError -> {
+                KitCreateViewModel.KitCreateEvent.NavigateToTileCreate -> onNavigateAddTile()
+                is KitCreateViewModel.KitCreateEvent.ShowError -> {
                     showErrorDialog = true
                     errorDialogTitle = event.title
                     errorDialogText = event.text
                 }
-                KitCreateEvent.CloseApp -> onCloseApp()
-                KitCreateEvent.NavigateBack -> onNavigateBack()
+                KitCreateViewModel.KitCreateEvent.CloseApp -> onCloseApp()
+                KitCreateViewModel.KitCreateEvent.NavigateBack -> onNavigateBack()
             }
         }
     }
 
     if (showErrorDialog) {
-        SingleButtonDialog(
-            title = errorDialogTitle,
-            message = errorDialogText,
-            onDismiss = { showErrorDialog = false }
-        )
+        SingleButtonDialog(title = errorDialogTitle, message = errorDialogText, onDismiss = { showErrorDialog = false })
     }
 
     if (showExitDialog) {
         TwoButtonDialog(
             message = "У вас нет ни одного набора. Выход с этого экрана приведет к закрытию приложения. Выйти?",
             title = "Выход",
-            onConfirm = {
-                showExitDialog = false
-                onCloseApp()
-            },
+            onConfirm = { showExitDialog = false; onCloseApp() },
             onDismiss = { showExitDialog = false }
         )
     }
 
-    when (state) {
-        KitCreateState.Initial -> Unit
-
-        KitCreateState.Loading -> LoadingScreen()
-
-        is KitCreateState.Content -> {
-            val state = state as KitCreateState.Content
-            KitCreateScreenContent(
-                showWarning = state.showWarnings,
-                blockButton = state.blockButton,
-                onNavigateBack = {
-                    if (closeAppState.needCloseApp){
-                        showExitDialog = true
-                    } else {
-                        onNavigateBack()
-                    }
-                },
-                onNameChanged = { viewModel.checkName(it) },
-                onSaveButtonClicked = { viewModel.saveKit(it) }
-            )
-        }
+    when (val uiState = state) {
+        KitCreateViewModel.KitCreateState.Initial -> Unit
+        KitCreateViewModel.KitCreateState.Loading -> LoadingScreen()
+        is KitCreateViewModel.KitCreateState.Content -> KitCreateScreenContent(
+            showWarning = uiState.showWarnings,
+            blockButton = uiState.blockButton,
+            selectedTileName = uiState.selectedTile?.name ?: uiState.selectedTile?.sensor?.friendlyName,
+            onNavigateBack = {
+                if (closeAppState.needCloseApp) showExitDialog = true else onNavigateBack()
+            },
+            onNameChanged = viewModel::checkName,
+            onSelectTileClicked = viewModel::openTilesSelector,
+            onSaveButtonClicked = viewModel::saveKit
+        )
     }
 }
 
@@ -129,96 +107,70 @@ fun KitCreateScreen(
 @Composable
 fun KitCreateScreenContent(
     modifier: Modifier = Modifier,
-    picRes: Int? = null,
     onNavigateBack: () -> Unit,
     onNameChanged: (String) -> Unit,
-    onSaveButtonClicked: (String) -> Unit,
+    onSelectTileClicked: () -> Unit,
+    onSaveButtonClicked: () -> Unit,
     showWarning: Boolean,
+    selectedTileName: String?,
     blockButton: Boolean
 ) {
     var kitName by remember { mutableStateOf("") }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text("Создание набора") },
             navigationIcon = {
-                IconButton(onClick = { onNavigateBack() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "Назад"
-                    )
+                IconButton(onClick = onNavigateBack) {
+                    Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = "Назад")
                 }
             }
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SimpleIconSelectorLocked(
-                    modifier = Modifier
-                        .padding(end = 8.dp),
                     hintText = "Нажмите чтобы выбрать иконку",
                     dialogTitle = "Выбор иконки",
                     dialogMessage = "Извините, пока доступна только эта иконка"
                 )
 
-                Column(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .padding(horizontal = 8.dp)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
                     TextField(
                         value = kitName,
-                        onValueChange = { newValue ->
-                            kitName = newValue
-                            onNameChanged(newValue)
-                        },
+                        onValueChange = { kitName = it; onNameChanged(it) },
                         label = { Text("Название набора") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (kitName.isEmpty()) {
                         Text(
-                            text = "Необходимо ввести название тайла",
+                            text = "Необходимо ввести название набора",
                             style = MaterialTheme.typography.bodySmall,
                             color = if (!showWarning) Color.Gray else Color.Red,
                             modifier = Modifier.padding(top = 4.dp)
                         )
                     }
+                    if (selectedTileName == null) {
+                        Button(onClick = onSelectTileClicked, modifier = Modifier.padding(top = 8.dp)) { Text("Выбрать тайл") }
+                    } else {
+                        Box(modifier = Modifier.padding(top = 8.dp)) {
+                            SimpleNoTypeTileCard(state = "выбран", title = selectedTileName)
+                        }
+                        Button(onClick = onSelectTileClicked, modifier = Modifier.padding(top = 8.dp)) { Text("Изменить тайл") }
+                    }
                 }
-                Button(
-                    onClick = { onSaveButtonClicked(kitName) },
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .align(Alignment.CenterVertically),
-                ) {
-                    Text("Выбрать тайл")
-                }
-                Button(
-                    onClick = { onSaveButtonClicked(kitName) },
-                    modifier = Modifier
-                        .weight(0.6f)
-                        .align(Alignment.CenterVertically),
-                    enabled = !blockButton
-                ) {
-                    Text("Сохранить")
-                }
+
+                Button(onClick = onSaveButtonClicked, enabled = !blockButton) { Text("Сохранить") }
             }
         }
     }
 }
 
+/*
 @Preview(
     name = "Nexus_9",
     device = Devices.NEXUS_9,
@@ -235,4 +187,4 @@ fun ScreenPreview(){
             onSaveButtonClicked = {}
         )
     }
-}
+}*/
