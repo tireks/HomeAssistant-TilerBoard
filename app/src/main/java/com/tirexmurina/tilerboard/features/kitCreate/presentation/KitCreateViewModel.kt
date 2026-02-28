@@ -1,6 +1,5 @@
 package com.tirexmurina.tilerboard.features.kitCreate.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tirexmurina.tilerboard.R
@@ -25,8 +24,7 @@ class KitCreateViewModel @Inject constructor(
     private val createKitUseCase: CreateKitUseCase,
     private val userHasKitsUseCase: UserHasKitsUseCase,
     private val getTileByIdUseCase: GetTileByIdUseCase,
-    private val linkTileToKitUseCase: LinkTileToKitUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val linkTileToKitUseCase: LinkTileToKitUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<KitCreateState>(KitCreateState.Initial)
     val uiState: StateFlow<KitCreateState> = _uiState.asStateFlow()
@@ -42,11 +40,10 @@ class KitCreateViewModel @Inject constructor(
     private var currentName = ""
 
     fun startScreen() {
-        observeSelectionResult()
         _uiState.value = KitCreateState.Loading
         viewModelScope.launch {
             try {
-                needCloseApp = userHasKitsUseCase()
+                needCloseApp = !userHasKitsUseCase()
                 _needCloseAppState.value = CloseAppState(needCloseApp)
                 emitContent(showWarnings = false)
             } catch (e: Exception) {
@@ -55,16 +52,13 @@ class KitCreateViewModel @Inject constructor(
         }
     }
 
-    private fun observeSelectionResult() {
-        savedStateHandle.get<Long>("selectedTileId")?.let { tileId ->
-            viewModelScope.launch {
-                try {
-                    selectedTile = getTileByIdUseCase(tileId)
-                    savedStateHandle.remove<Long>("selectedTileId")
-                    emitContent(showWarnings = false)
-                } catch (e: Exception) {
-                    errorHandler(e)
-                }
+    fun onTileSelected(tileId: Long) {
+        viewModelScope.launch {
+            try {
+                selectedTile = getTileByIdUseCase(tileId)
+                emitContent(showWarnings = false)
+            } catch (e: Exception) {
+                errorHandler(e)
             }
         }
     }

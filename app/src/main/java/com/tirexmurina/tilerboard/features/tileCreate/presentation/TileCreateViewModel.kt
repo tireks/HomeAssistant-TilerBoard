@@ -155,9 +155,9 @@ class TileCreateViewModel @Inject constructor(
         val sensor = sensorLocalStore ?: throw SensorDataFault("Sensor not found")
         val sensorType = sensor.deviceClass
         val sensorState = sensor.state
-        if (sensorType == "temperature") return SimpleTemperature(sensorState.toDouble())
+        if (sensorType == "temperature") return SimpleTemperature(sensorState.toDoubleOrNull())
         if (sensorType == "light") return SimpleBinaryOnOff(chooseBinaryOnOffEnum(sensorState))
-        if (sensorType == "humidity") return SimpleHumidity(sensorState.toDouble())
+        if (sensorType == "humidity") return SimpleHumidity(sensorState.toDoubleOrNull())
         return SimpleNoTypeRaw(sensorState)
     }
 
