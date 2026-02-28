@@ -21,6 +21,7 @@ const val ROUTE_SENSORS_LIST = "sensors_list_screen"
 const val ROUTE_TILE_CREATE = "tile_create"
 const val ROUTE_KIT_CREATE = "kit_create"
 const val ROUTE_TILES_LIST = "tiles_list"
+const val SELECTED_TILE_ID_KEY = "selectedTileId"
 
 @Composable
 fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
@@ -70,17 +71,22 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
                 onTileSelected = {
                     navController.previousBackStackEntry
                         ?.savedStateHandle
-                        ?.set("selectedTileId", it)
+                        ?.set(SELECTED_TILE_ID_KEY, it)
                     navController.popBackStack()
                 }
             )
         }
 
-        composable(ROUTE_KIT_CREATE) {
+        composable(ROUTE_KIT_CREATE) { backStackEntry ->
+            val selectedTileId = backStackEntry.savedStateHandle.get<Long>(SELECTED_TILE_ID_KEY)
             KitCreateScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onCloseApp = { activity?.finish() },
-                onNavigateAddTile = { navController.navigate(ROUTE_TILES_LIST) }
+                onNavigateAddTile = { navController.navigate(ROUTE_TILES_LIST) },
+                selectedTileId = selectedTileId,
+                onTileSelectionConsumed = {
+                    backStackEntry.savedStateHandle.remove<Long>(SELECTED_TILE_ID_KEY)
+                }
             )
         }
     }

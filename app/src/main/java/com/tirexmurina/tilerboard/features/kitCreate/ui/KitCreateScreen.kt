@@ -43,7 +43,9 @@ fun KitCreateScreen(
     viewModel: KitCreateViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
     onCloseApp: () -> Unit = {},
-    onNavigateAddTile: () -> Unit = {}
+    onNavigateAddTile: () -> Unit = {},
+    selectedTileId: Long? = null,
+    onTileSelectionConsumed: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val closeAppState by viewModel.needCloseAppState.collectAsState()
@@ -53,6 +55,13 @@ fun KitCreateScreen(
     var showExitDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewModel.startScreen() }
+
+    LaunchedEffect(selectedTileId) {
+        selectedTileId?.let {
+            viewModel.onTileSelected(it)
+            onTileSelectionConsumed()
+        }
+    }
 
     BackHandler {
         if (closeAppState.needCloseApp) showExitDialog = true else viewModel.askForBackNavigation()
