@@ -22,6 +22,7 @@ const val ROUTE_TILE_CREATE = "tile_create"
 const val ROUTE_KIT_CREATE = "kit_create"
 const val ROUTE_TILES_LIST = "tiles_list"
 const val SELECTED_TILE_ID_KEY = "selectedTileId"
+const val HOME_REFRESH_REQUIRED_KEY = "home_refresh_required"
 
 @Composable
 fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
@@ -40,8 +41,12 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
             )
         }
 
-        composable(ROUTE_HOME) {
+        composable(ROUTE_HOME) { backStackEntry ->
             HomeScreen(
+                shouldRefresh = backStackEntry.savedStateHandle.getStateFlow(HOME_REFRESH_REQUIRED_KEY, false),
+                onRefreshConsumed = {
+                    backStackEntry.savedStateHandle[HOME_REFRESH_REQUIRED_KEY] = false
+                },
                 onNavigateSettings = { navController.navigate(ROUTE_SETTINGS) },
                 onNavigateCreateKit = { navController.navigate(ROUTE_KIT_CREATE) }
             )
@@ -61,7 +66,14 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
         }
 
         composable(ROUTE_TILE_CREATE) {
-            TileCreateScreen(onNavigateBack = { navController.popBackStack() }, onTileSaved = { navController.popBackStack() })
+            TileCreateScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onTileSaved = {
+                    navController.getBackStackEntry(ROUTE_HOME)
+                        .savedStateHandle[HOME_REFRESH_REQUIRED_KEY] = true
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(ROUTE_TILES_LIST) {
@@ -81,6 +93,11 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
             val selectedTileId = backStackEntry.savedStateHandle.get<Long>(SELECTED_TILE_ID_KEY)
             KitCreateScreen(
                 onNavigateBack = { navController.popBackStack() },
+                onKitSaved = {
+                    navController.getBackStackEntry(ROUTE_HOME)
+                        .savedStateHandle[HOME_REFRESH_REQUIRED_KEY] = true
+                    navController.popBackStack()
+                },
                 onCloseApp = { activity?.finish() },
                 onNavigateAddTile = { navController.navigate(ROUTE_TILES_LIST) },
                 selectedTileId = selectedTileId,

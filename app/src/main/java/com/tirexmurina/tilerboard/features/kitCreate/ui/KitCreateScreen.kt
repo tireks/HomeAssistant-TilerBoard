@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,6 +41,7 @@ import com.tirexmurina.tilerboard.features.util.tileCards.SimpleNoTypeTileCard
 fun KitCreateScreen(
     viewModel: KitCreateViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
+    onKitSaved: () -> Unit = {},
     onCloseApp: () -> Unit = {},
     onNavigateAddTile: () -> Unit = {},
     selectedTileId: Long? = null,
@@ -78,6 +78,7 @@ fun KitCreateScreen(
                 }
                 KitCreateViewModel.KitCreateEvent.CloseApp -> onCloseApp()
                 KitCreateViewModel.KitCreateEvent.NavigateBack -> onNavigateBack()
+                KitCreateViewModel.KitCreateEvent.KitSaved -> onKitSaved()
             }
         }
     }
@@ -101,6 +102,7 @@ fun KitCreateScreen(
         is KitCreateViewModel.KitCreateState.Content -> KitCreateScreenContent(
             showWarning = uiState.showWarnings,
             blockButton = uiState.blockButton,
+            kitName = uiState.currentName,
             selectedTileName = uiState.selectedTile?.name ?: uiState.selectedTile?.sensor?.friendlyName,
             onNavigateBack = {
                 if (closeAppState.needCloseApp) showExitDialog = true else onNavigateBack()
@@ -120,12 +122,11 @@ fun KitCreateScreenContent(
     onNameChanged: (String) -> Unit,
     onSelectTileClicked: () -> Unit,
     onSaveButtonClicked: () -> Unit,
+    kitName: String,
     showWarning: Boolean,
     selectedTileName: String?,
     blockButton: Boolean
 ) {
-    var kitName by remember { mutableStateOf("") }
-
     Column(modifier = modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text("Создание набора") },
@@ -151,7 +152,7 @@ fun KitCreateScreenContent(
                 Column(modifier = Modifier.weight(1f)) {
                     TextField(
                         value = kitName,
-                        onValueChange = { kitName = it; onNameChanged(it) },
+                        onValueChange = onNameChanged,
                         label = { Text("Название набора") },
                         modifier = Modifier.fillMaxWidth()
                     )

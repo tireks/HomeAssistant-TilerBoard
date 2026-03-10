@@ -45,10 +45,13 @@ import com.tirexmurina.tilerboard.shared.sensor.domain.entity.Sensor
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
 import com.tirexmurina.tilerboard.ui.theme.TilerBoardTheme
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
+    shouldRefresh: StateFlow<Boolean>? = null,
+    onRefreshConsumed: () -> Unit = {},
     onNavigateSettings: () -> Unit = {},
     onNavigateCreateKit: () -> Unit = {}
     //todo другие навигационные пути
@@ -66,6 +69,15 @@ fun HomeScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 HomeViewModel.HomeEvent.NavigateToCreateKit -> onNavigateCreateKit()
+            }
+        }
+    }
+
+    LaunchedEffect(shouldRefresh) {
+        shouldRefresh?.collect { refreshRequired ->
+            if (refreshRequired) {
+                viewModel.refreshScreenData()
+                onRefreshConsumed()
             }
         }
     }

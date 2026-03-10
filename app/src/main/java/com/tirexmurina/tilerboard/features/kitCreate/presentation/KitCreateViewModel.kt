@@ -82,7 +82,7 @@ class KitCreateViewModel @Inject constructor(
             try {
                 val kitId = createKitUseCase(currentName, R.drawable.ic_fence)
                 linkTileToKitUseCase(tile.id, kitId)
-                _uiEvent.emit(KitCreateEvent.NavigateBack)
+                _uiEvent.emit(KitCreateEvent.KitSaved)
             } catch (e: Exception) {
                 errorHandler(KitCreationException("Не удалось создать набор. ${e.message}"))
             }
@@ -103,6 +103,7 @@ class KitCreateViewModel @Inject constructor(
         _uiState.value = KitCreateState.Content(
             showWarnings = showWarnings,
             blockButton = currentName.isEmpty() || selectedTile == null,
+            currentName = currentName,
             selectedTile = selectedTile
         )
     }
@@ -121,6 +122,7 @@ class KitCreateViewModel @Inject constructor(
         data class Content(
             val showWarnings: Boolean,
             val blockButton: Boolean,
+            val currentName: String,
             val selectedTile: Tile?
         ) : KitCreateState
     }
@@ -130,5 +132,6 @@ class KitCreateViewModel @Inject constructor(
         data class ShowError(val title: String, val text: String) : KitCreateEvent
         data object CloseApp : KitCreateEvent
         data object NavigateBack : KitCreateEvent
+        data object KitSaved : KitCreateEvent
     }
 }

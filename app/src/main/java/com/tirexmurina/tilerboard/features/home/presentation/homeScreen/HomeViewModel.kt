@@ -74,15 +74,31 @@ class HomeViewModel @Inject constructor (
         }
     }
 
+    fun refreshScreenData() {
+        viewModelScope.launch {
+            try {
+                getKits()
+            } catch (exception: Exception) {
+                errorHandler(exception)
+            }
+        }
+    }
+
     suspend fun getKits(){
             try {
-                val state = _uiState.value as? HomeState.Content ?: return
+                val state = _uiState.value as? HomeState.Content ?: HomeState.Content(
+                    staticKitList = StaticKitList.Loading,
+                    dynamicTilesList = DynamicTileList.Loading
+                )
                 val kitList = getKitsUseCase()
                 _uiState.value = state.copy(
                     staticKitList = StaticKitList.Content(kitList)
                 )
                 if (kitList.isNotEmpty()) {
-                    subscribeForTiles(kitList.first().id)
+                    val preferredKitId = currentKitId?.takeIf { selectedId ->
+                        kitList.any { it.id == selectedId }
+                    } ?: kitList.first().id
+                    subscribeForTiles(preferredKitId)
                 }
             } catch ( exception : Exception){
                 if (exception is NeedFirstKitException) {
