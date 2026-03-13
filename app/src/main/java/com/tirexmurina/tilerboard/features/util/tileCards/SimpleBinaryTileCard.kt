@@ -28,10 +28,11 @@ import com.tirexmurina.tilerboard.shared.tile.util.BinaryOnOffEnum
 @Composable
 fun SimpleBinaryTileCard(
     state : BinaryOnOffEnum?,
-    title: String
+    title: String,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(1.dp, Color.Gray)
             .padding(8.dp),

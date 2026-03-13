@@ -10,4 +10,10 @@ interface KitRepository {
 
     suspend fun getKitsNumber(): Int
 
+    suspend fun getKitById(kitId: Long): Kit
+
+    suspend fun updateKit(kit: Kit)
+
+    suspend fun deleteKit(kitId: Long)
+
 }

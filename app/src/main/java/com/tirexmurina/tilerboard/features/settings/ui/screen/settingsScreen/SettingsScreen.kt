@@ -32,15 +32,15 @@ fun SettingsScreen(
     onNavigateAddTile: () -> Unit = {},
     onNavigateKitSettings: () -> Unit = {},
     onNavigateAddKit:() -> Unit = {},
-    //сюда пойдут прочие навигационные вызовы
+    onNavigateTilesSettings: () -> Unit = {}
 ) {
-    //когда нибудь здесь будет обработка стейта с вьюмодели,
-    // но сейчас экран супер простой, поэтому вьюмодель вообще пустая и ничего не умеет
     SettingsScreenContent(
-        onNavigateSensorsList = { onNavigateSensorsList() },
-        onNavigateAddTile = { onNavigateAddTile() },
-        onNavigateBack = { onNavigateBack() },
-        onNavigateAddKit = { onNavigateAddKit() }
+        onNavigateSensorsList = onNavigateSensorsList,
+        onNavigateAddTile = onNavigateAddTile,
+        onNavigateBack = onNavigateBack,
+        onNavigateAddKit = onNavigateAddKit,
+        onNavigateKitSettings = onNavigateKitSettings,
+        onNavigateTilesSettings = onNavigateTilesSettings
     )
 }
 
@@ -51,13 +51,15 @@ fun SettingsScreenContent(
     onNavigateAddTile: () -> Unit = {},
     onNavigateKitSettings: () -> Unit = {},
     onNavigateAddKit:() -> Unit = {},
+    onNavigateTilesSettings: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
     val items = listOf(
         "Список всех сенсоров" to onNavigateSensorsList,
         "Добавление тайла в набор" to onNavigateAddTile,
         "Добавить новый набор" to onNavigateAddKit,
-        "Настройки текущего набора" to onNavigateKitSettings
+        "Настройки текущего набора" to onNavigateKitSettings,
+        "Список тайлов" to onNavigateTilesSettings
     )
 
     Scaffold(

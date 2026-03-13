@@ -14,6 +14,10 @@ interface TileRepository {
 
     suspend fun createTile(type: TileType, linkedSensorId: String, name: String?): Long
 
+    suspend fun updateTile(tile: Tile)
+
+    suspend fun deleteTile(tileId: Long)
+
     suspend fun linkTileToKit(tileId: Long, kitId: Long)
 
     suspend fun detachTileFromKit(tileId: Long, kitId: Long)

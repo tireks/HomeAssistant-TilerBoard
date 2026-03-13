@@ -50,7 +50,8 @@ fun TilesListScreen(
     viewModel: TilesListViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
     onCreateTile: () -> Unit = {},
-    onTileSelected: (Long) -> Unit = {}
+    onTileSelected: (Long) -> Unit = {},
+    showCreateButton: Boolean = true
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -74,7 +75,8 @@ fun TilesListScreen(
             onNavigateBack = onNavigateBack,
             onCreateTile = onCreateTile,
             onTileSelected = onTileSelected,
-            onSearch = viewModel::searchTiles
+            onSearch = viewModel::searchTiles,
+            showCreateButton = showCreateButton
         )
     }
 }
@@ -86,7 +88,8 @@ private fun TilesListScreenContent(
     onNavigateBack: () -> Unit,
     onCreateTile: () -> Unit,
     onTileSelected: (Long) -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    showCreateButton: Boolean
 ) {
     var queryText by rememberSaveable { mutableStateOf(searchQuery) }
     Scaffold(
@@ -124,7 +127,7 @@ private fun TilesListScreenContent(
                     }
                 },
                 actions = {
-                    Button(onClick = onCreateTile) { Text("Создать тайл") }
+                    if (showCreateButton) Button(onClick = onCreateTile) { Text("Создать тайл") }
                 }
             )
         }

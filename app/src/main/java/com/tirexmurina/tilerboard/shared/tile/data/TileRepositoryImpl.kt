@@ -77,6 +77,20 @@ class TileRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateTile(tile: Tile) {
+        withContext(dispatcherIO) {
+            val tileModel = localDatabaseModelHelper.buildTileDbModel(tile.type, tile.sensor.entityId, tile.name)
+            tileDao.updateTile(tileModel.copy(id = tile.id))
+        }
+    }
+
+    override suspend fun deleteTile(tileId: Long) {
+        withContext(dispatcherIO) {
+            tileDao.clearTileLinks(tileId)
+            tileDao.deleteTile(tileId)
+        }
+    }
+
     override suspend fun linkTileToKit(tileId: Long, kitId: Long) {
         withContext(dispatcherIO) {
             tileDao.linkTileToKit(
@@ -92,7 +106,6 @@ class TileRepositoryImpl @Inject constructor(
         return withContext(dispatcherIO) {
             try {
                 tileDao.unlinkTileFromKit(tileId, kitId)
-                tileDao.deleteTileIfOrphan(tileId)
             } catch (exception: Exception) {
                 throw TileDetachException(exception.message.toString())
             }

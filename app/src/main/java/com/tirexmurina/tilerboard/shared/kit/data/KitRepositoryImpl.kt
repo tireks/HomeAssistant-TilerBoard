@@ -24,11 +24,9 @@ class KitRepositoryImpl @Inject constructor(
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             try {
                 if (kitDao.getKitCountByUserId(userId) == 0){
-                    //createKit("Base Home Screen", R.drawable.ic_kit_icon_home)
                     throw NeedFirstKitException("User has no kits")
                 }
-                val kitsList = kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
-                kitsList
+                kitDao.getKitsByUserId(userId).map { converter.localModelToEntity(it) }
             } catch ( exception : Exception){
                 if ( exception is NeedFirstKitException) {
                     throw exception
@@ -42,7 +40,7 @@ class KitRepositoryImpl @Inject constructor(
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             try {
                 val kit = buildKit(name, iconResId)
-                return@withContext kitDao.createKit(converter.entityToLocalModel(kit, userId))
+                kitDao.createKit(converter.entityToLocalModel(kit, userId))
             } catch (exception : Exception){
                 throw KitCreationException("Cannot create new kit. " + exception.message.toString())
             }
@@ -53,6 +51,27 @@ class KitRepositoryImpl @Inject constructor(
         return withContext(dispatcherIO){
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             kitDao.getKitCountByUserId(userId)
+        }
+    }
+
+    override suspend fun getKitById(kitId: Long): Kit {
+        return withContext(dispatcherIO) {
+            val localModel = kitDao.getKitById(kitId) ?: throw UserKitException("Kit with id=$kitId not found")
+            converter.localModelToEntity(localModel)
+        }
+    }
+
+    override suspend fun updateKit(kit: Kit) {
+        withContext(dispatcherIO) {
+            val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
+            kitDao.updateKit(converter.entityToLocalModel(kit, userId))
+        }
+    }
+
+    override suspend fun deleteKit(kitId: Long) {
+        withContext(dispatcherIO) {
+            kitDao.clearKitTileLinks(kitId)
+            kitDao.deleteKit(kitId)
         }
     }
 

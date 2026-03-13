@@ -25,10 +25,11 @@ import com.tirexmurina.tilerboard.R
 @Composable
 fun SimpleHumiditySensorTileCard(
     title: String,
-    state: Double?
+    state: Double?,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(1.dp, Color.Gray)
             .padding(8.dp),

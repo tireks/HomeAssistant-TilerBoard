@@ -1,5 +1,6 @@
 package com.tirexmurina.tilerboard.features.util.tileCards
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,7 +13,7 @@ import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
 
 @Composable
-fun TileCardsGrid(tiles: List<Tile>) {
+fun TileCardsGrid(tiles: List<Tile>, onTileClick: ((Tile) -> Unit)? = null) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = Modifier
@@ -20,22 +21,27 @@ fun TileCardsGrid(tiles: List<Tile>) {
             .padding(16.dp)
     ) {
         items(tiles) { tile ->
+            val clickableModifier = if (onTileClick != null) Modifier.clickable { onTileClick(tile) } else Modifier
             when (tile.type) {
                 is TileType.SimpleTemperature -> SimpleTemperatureSensorTileCard(
                     title = tile.name ?: tile.sensor.friendlyName,
-                    state = tile.type.temperature
+                    state = tile.type.temperature,
+                    modifier = clickableModifier
                 )
                 is TileType.SimpleBinaryOnOff -> SimpleBinaryTileCard(
                     title = tile.name ?: tile.sensor.friendlyName,
-                    state = tile.type.state
+                    state = tile.type.state,
+                    modifier = clickableModifier
                 )
                 is TileType.SimpleHumidity -> SimpleHumiditySensorTileCard(
                     title = tile.name ?: tile.sensor.friendlyName,
-                    state = tile.type.humidity
+                    state = tile.type.humidity,
+                    modifier = clickableModifier
                 )
                 is TileType.SimpleNoTypeRaw -> SimpleNoTypeTileCard(
                     title = tile.name ?: tile.sensor.friendlyName,
-                    state = tile.type.state
+                    state = tile.type.state,
+                    modifier = clickableModifier
                 )
             }
         }

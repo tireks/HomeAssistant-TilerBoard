@@ -134,7 +134,7 @@ fun TileCreateScreen(
 }
 
 @Composable
-private fun OverlayContainer(onDismiss: () -> Unit, content: @Composable () -> Unit) {
+fun OverlayContainer(onDismiss: () -> Unit, content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
