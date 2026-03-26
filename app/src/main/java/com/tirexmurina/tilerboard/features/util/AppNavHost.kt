@@ -29,7 +29,6 @@ const val ROUTE_KIT_SETTINGS = "kit_settings"
 const val ROUTE_TILES_LIST = "tiles_list"
 const val ROUTE_TILES_SETTINGS_LIST = "tiles_settings_list"
 const val SELECTED_TILE_ID_KEY = "selectedTileId"
-const val HOME_REFRESH_REQUIRED_KEY = "home_refresh_required"
 
 @Composable
 fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
@@ -48,12 +47,8 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
             )
         }
 
-        composable(ROUTE_HOME) { backStackEntry ->
+        composable(ROUTE_HOME) {
             HomeScreen(
-                shouldRefresh = backStackEntry.savedStateHandle.getStateFlow(HOME_REFRESH_REQUIRED_KEY, false),
-                onRefreshConsumed = {
-                    backStackEntry.savedStateHandle[HOME_REFRESH_REQUIRED_KEY] = false
-                },
                 onNavigateSettings = { navController.navigate(ROUTE_SETTINGS) },
                 onNavigateCreateKit = { navController.navigate(ROUTE_KIT_CREATE) }
             )
@@ -77,11 +72,7 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
         composable(ROUTE_TILE_CREATE) {
             TileCreateScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onTileSaved = {
-                    navController.getBackStackEntry(ROUTE_HOME)
-                        .savedStateHandle[HOME_REFRESH_REQUIRED_KEY] = true
-                    navController.popBackStack()
-                }
+                onTileSaved = { navController.popBackStack() }
             )
         }
 
@@ -113,19 +104,23 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
             TileSettingsScreen(onNavigateBack = { navController.popBackStack() })
         }
 
-        composable(ROUTE_KIT_SETTINGS) {
-            KitSettingsScreen(onNavigateBack = { navController.popBackStack() })
+        composable(ROUTE_KIT_SETTINGS) { backStackEntry ->
+            val selectedTileId = backStackEntry.savedStateHandle.get<Long>(SELECTED_TILE_ID_KEY)
+            KitSettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateAddTile = { navController.navigate(ROUTE_TILES_LIST) },
+                selectedTileId = selectedTileId,
+                onTileSelectionConsumed = {
+                    backStackEntry.savedStateHandle.remove<Long>(SELECTED_TILE_ID_KEY)
+                }
+            )
         }
 
         composable(ROUTE_KIT_CREATE) { backStackEntry ->
             val selectedTileId = backStackEntry.savedStateHandle.get<Long>(SELECTED_TILE_ID_KEY)
             KitCreateScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onKitSaved = {
-                    navController.getBackStackEntry(ROUTE_HOME)
-                        .savedStateHandle[HOME_REFRESH_REQUIRED_KEY] = true
-                    navController.popBackStack()
-                },
+                onKitSaved = { navController.popBackStack() },
                 onCloseApp = { activity?.finish() },
                 onNavigateAddTile = { navController.navigate(ROUTE_TILES_LIST) },
                 selectedTileId = selectedTileId,

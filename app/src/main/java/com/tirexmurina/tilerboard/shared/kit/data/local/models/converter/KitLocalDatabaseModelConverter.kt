@@ -7,6 +7,7 @@ class KitLocalDatabaseModelConverter {
     fun entityToLocalModel(from: Kit, userId : Long) : KitLocalDatabaseModel {
         with(from){
             return KitLocalDatabaseModel(
+                id = id,
                 linkedUserId = userId,
                 name = name,
                 iconResId = iconResId

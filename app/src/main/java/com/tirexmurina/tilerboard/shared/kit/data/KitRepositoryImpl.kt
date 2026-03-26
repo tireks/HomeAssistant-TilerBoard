@@ -1,5 +1,6 @@
 package com.tirexmurina.tilerboard.shared.kit.data
 
+import com.tirexmurina.tilerboard.shared.datachange.DataChangeNotifier
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.converter.KitLocalDatabaseModelConverter
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
 import com.tirexmurina.tilerboard.shared.kit.domain.entity.Kit
@@ -17,7 +18,8 @@ class KitRepositoryImpl @Inject constructor(
     private val userIdDataStore: UserIdDataStore,
     private val kitDao: KitDao,
     private val dispatcherIO: CoroutineDispatcher,
-    private val converter: KitLocalDatabaseModelConverter
+    private val converter: KitLocalDatabaseModelConverter,
+    private val dataChangeNotifier: DataChangeNotifier
 ) : KitRepository {
     override suspend fun getKits(): List<Kit> {
         return withContext(dispatcherIO){
@@ -40,7 +42,9 @@ class KitRepositoryImpl @Inject constructor(
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             try {
                 val kit = buildKit(name, iconResId)
-                kitDao.createKit(converter.entityToLocalModel(kit, userId))
+                kitDao.createKit(converter.entityToLocalModel(kit, userId)).also {
+                    dataChangeNotifier.notifyChanged()
+                }
             } catch (exception : Exception){
                 throw KitCreationException("Cannot create new kit. " + exception.message.toString())
             }
@@ -65,6 +69,7 @@ class KitRepositoryImpl @Inject constructor(
         withContext(dispatcherIO) {
             val userId = userIdDataStore.get() ?: throw NullUserException("User id is Null")
             kitDao.updateKit(converter.entityToLocalModel(kit, userId))
+            dataChangeNotifier.notifyChanged()
         }
     }
 
@@ -72,6 +77,7 @@ class KitRepositoryImpl @Inject constructor(
         withContext(dispatcherIO) {
             kitDao.clearKitTileLinks(kitId)
             kitDao.deleteKit(kitId)
+            dataChangeNotifier.notifyChanged()
         }
     }
 

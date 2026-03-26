@@ -1,6 +1,7 @@
 package com.tirexmurina.tilerboard.shared.tile.data
 
 import android.util.Log
+import com.tirexmurina.tilerboard.shared.datachange.DataChangeNotifier
 import com.tirexmurina.tilerboard.shared.sensor.domain.repository.SensorRepository
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileSensorlessDTO
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.converter.TileLocalDatabaseModelHelper
@@ -20,7 +21,8 @@ class TileRepositoryImpl @Inject constructor(
     private val tileDao: TileDao,
     private val sensorRepository: SensorRepository,
     private val dispatcherIO: CoroutineDispatcher,
-    private val localDatabaseModelHelper: TileLocalDatabaseModelHelper
+    private val localDatabaseModelHelper: TileLocalDatabaseModelHelper,
+    private val dataChangeNotifier: DataChangeNotifier
 ) : TileRepository {
 
     override suspend fun getTilesByKitId(kitId: Long): List<TileSensorlessDTO> {
@@ -70,7 +72,9 @@ class TileRepositoryImpl @Inject constructor(
         return withContext(dispatcherIO) {
             try {
                 val tileDBModel = localDatabaseModelHelper.buildTileDbModel(type, linkedSensorId, name)
-                tileDao.createTile(tileDBModel)
+                tileDao.createTile(tileDBModel).also {
+                    dataChangeNotifier.notifyChanged()
+                }
             } catch (exception: Exception) {
                 throw TileCreationException(exception.message.toString())
             }
@@ -81,6 +85,7 @@ class TileRepositoryImpl @Inject constructor(
         withContext(dispatcherIO) {
             val tileModel = localDatabaseModelHelper.buildTileDbModel(tile.type, tile.sensor.entityId, tile.name)
             tileDao.updateTile(tileModel.copy(id = tile.id))
+            dataChangeNotifier.notifyChanged()
         }
     }
 
@@ -88,6 +93,7 @@ class TileRepositoryImpl @Inject constructor(
         withContext(dispatcherIO) {
             tileDao.clearTileLinks(tileId)
             tileDao.deleteTile(tileId)
+            dataChangeNotifier.notifyChanged()
         }
     }
 
@@ -99,6 +105,7 @@ class TileRepositoryImpl @Inject constructor(
                     kitId = kitId
                 )
             )
+            dataChangeNotifier.notifyChanged()
         }
     }
 
@@ -106,6 +113,7 @@ class TileRepositoryImpl @Inject constructor(
         return withContext(dispatcherIO) {
             try {
                 tileDao.unlinkTileFromKit(tileId, kitId)
+                dataChangeNotifier.notifyChanged()
             } catch (exception: Exception) {
                 throw TileDetachException(exception.message.toString())
             }

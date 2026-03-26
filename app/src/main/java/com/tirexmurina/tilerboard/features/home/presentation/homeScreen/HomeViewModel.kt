@@ -3,6 +3,7 @@ package com.tirexmurina.tilerboard.features.home.presentation.homeScreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tirexmurina.tilerboard.shared.datachange.DataChangeNotifier
 import com.tirexmurina.tilerboard.shared.kit.domain.usecase.GetKitsUseCase
 import com.tirexmurina.tilerboard.shared.kit.util.KitCreationException
 import com.tirexmurina.tilerboard.shared.kit.util.NeedFirstKitException
@@ -25,6 +26,7 @@ import com.tirexmurina.tilerboard.shared.user.util.TokenException
 import com.tirexmurina.tilerboard.shared.user.util.UnknownException
 import com.tirexmurina.tilerboard.shared.user.util.UserAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -47,7 +49,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor (
     private val getKitsUseCase: GetKitsUseCase,
     private val getTilesByKitIdUseCase: GetTilesByKitIdUseCase,
-    private val getSensorDataByIdUseCase: GetSensorDataByIdUseCase
+    private val getSensorDataByIdUseCase: GetSensorDataByIdUseCase,
+    private val dataChangeNotifier: DataChangeNotifier
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeState>(HomeState.Initial)
@@ -59,6 +62,10 @@ class HomeViewModel @Inject constructor (
     private var currentKitId: Long? = null
     private var tilesJob: Job? = null
     private var localTileValue = ON
+
+    init {
+        observeDataChanges()
+    }
 
     fun startScreen() {
         _uiState.value = HomeState.Content(
@@ -80,6 +87,14 @@ class HomeViewModel @Inject constructor (
                 getKits()
             } catch (exception: Exception) {
                 errorHandler(exception)
+            }
+        }
+    }
+
+    private fun observeDataChanges() {
+        viewModelScope.launch {
+            dataChangeNotifier.changes.collect {
+                refreshScreenData()
             }
         }
     }
@@ -136,6 +151,8 @@ class HomeViewModel @Inject constructor (
                                 sensor = updatedSensor,
                                 type = updateTileTypeWithState(updatedSensor.state, tile.type)
                             )
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             val tileType = tile.type
                             when(tileType){

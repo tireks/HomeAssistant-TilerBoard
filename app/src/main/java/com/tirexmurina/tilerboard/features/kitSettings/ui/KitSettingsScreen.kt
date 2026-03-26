@@ -48,7 +48,10 @@ import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 @Composable
 fun KitSettingsScreen(
     viewModel: KitSettingsViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onNavigateAddTile: () -> Unit = {},
+    selectedTileId: Long? = null,
+    onTileSelectionConsumed: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     var showKitPicker by rememberSaveable { mutableStateOf(false) }
@@ -60,8 +63,16 @@ fun KitSettingsScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 KitSettingsViewModel.KitSettingsEvent.NavigateBack -> onNavigateBack()
+                KitSettingsViewModel.KitSettingsEvent.NavigateToTileCreate -> onNavigateAddTile()
                 is KitSettingsViewModel.KitSettingsEvent.ShowError -> errorMessage = event.message
             }
+        }
+    }
+
+    LaunchedEffect(selectedTileId) {
+        selectedTileId?.let {
+            viewModel.onTileSelected(it)
+            onTileSelectionConsumed()
         }
     }
 
@@ -87,10 +98,19 @@ fun KitSettingsScreen(
     }
 
     tileActionDialogFor?.let { tile ->
+        val isLastTile = (state as? KitSettingsViewModel.KitSettingsState.Content)?.tiles?.size == 1
         AlertDialog(
             onDismissRequest = { tileActionDialogFor = null },
             title = { Text("Действие с тайлом") },
-            text = { Text("Удалить тайл или отвязать от текущего набора") },
+            text = {
+                Text(
+                    if (isLastTile) {
+                        "Это последний тайл в наборе. После его удаления или отвязки набор тоже будет удален."
+                    } else {
+                        "Удалить тайл или отвязать от текущего набора"
+                    }
+                )
+            },
             dismissButton = {
                 TextButton(onClick = { tileActionDialogFor = null }) { Text("Отмена") }
             },
@@ -98,11 +118,11 @@ fun KitSettingsScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = {
                         tileActionDialogFor = null
-                        viewModel.deleteTile(tile.id)
+                        viewModel.deleteTile(tile.id, isLastTile)
                     }) { Text("Удалить") }
                     TextButton(onClick = {
                         tileActionDialogFor = null
-                        viewModel.detachTile(tile.id)
+                        viewModel.detachTile(tile.id, isLastTile)
                     }) { Text("Отвязать") }
                 }
             }
@@ -123,6 +143,7 @@ fun KitSettingsScreen(
                 onSelectKit = { showKitPicker = true },
                 onDeleteKit = { showDeleteKitDialog = true },
                 onSaveKit = viewModel::saveKit,
+                onAddTile = viewModel::openTilesSelector,
                 onTileClick = { tileActionDialogFor = it }
             )
 
@@ -154,6 +175,7 @@ private fun KitSettingsContent(
     onSelectKit: () -> Unit,
     onDeleteKit: () -> Unit,
     onSaveKit: () -> Unit,
+    onAddTile: () -> Unit,
     onTileClick: (Tile) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -183,6 +205,7 @@ private fun KitSettingsContent(
                         label = { Text("Название набора") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Button(onClick = onAddTile, modifier = Modifier.fillMaxWidth()) { Text("Добавить тайл") }
                 }
                 Button(onClick = onDeleteKit, modifier = Modifier.fillMaxWidth()) { Text("Удалить набор") }
                 Button(onClick = onSaveKit, modifier = Modifier.fillMaxWidth(), enabled = canSave) { Text("Сохранить набор") }

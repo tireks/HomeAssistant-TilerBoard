@@ -11,6 +11,7 @@ import com.tirexmurina.tilerboard.shared.util.remote.source.NotFoundException
 import com.tirexmurina.tilerboard.shared.util.remote.source.RequestFault
 import com.tirexmurina.tilerboard.shared.util.remote.source.ResponseFault
 import com.tirexmurina.tilerboard.shared.util.remote.source.UnauthorizedException
+import kotlinx.coroutines.CancellationException
 import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
@@ -29,6 +30,8 @@ class SensorRepositoryImpl @Inject constructor(
             }
         } catch ( e : IOException ){
             throw NetworkFault(e.message.toString())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw RequestFault(e.message.toString())
         }
@@ -46,6 +49,8 @@ class SensorRepositoryImpl @Inject constructor(
             }
         } catch ( e : IOException ){
             throw NetworkFault(e.message.toString())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw RequestFault(e.message.toString())
         }

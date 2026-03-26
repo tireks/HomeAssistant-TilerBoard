@@ -11,6 +11,7 @@ import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.domain.usecase.DeleteTileUseCase
 import com.tirexmurina.tilerboard.shared.tile.domain.usecase.DetachTileFromKitUseCase
 import com.tirexmurina.tilerboard.shared.tile.domain.usecase.GetTilesByKitIdUseCase
+import com.tirexmurina.tilerboard.shared.tile.domain.usecase.LinkTileToKitUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,8 @@ class KitSettingsViewModel @Inject constructor(
     private val updateKitUseCase: UpdateKitUseCase,
     private val deleteKitUseCase: DeleteKitUseCase,
     private val detachTileFromKitUseCase: DetachTileFromKitUseCase,
-    private val deleteTileUseCase: DeleteTileUseCase
+    private val deleteTileUseCase: DeleteTileUseCase,
+    private val linkTileToKitUseCase: LinkTileToKitUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<KitSettingsState>(KitSettingsState.Loading)
@@ -60,7 +62,9 @@ class KitSettingsViewModel @Inject constructor(
             val kitId = selectedKitId ?: return@launch
             val currentKit = kits.firstOrNull { it.id == kitId } ?: return@launch
             try {
-                updateKitUseCase(currentKit.copy(name = editedName.trim()))
+                val updatedKit = currentKit.copy(name = editedName.trim())
+                updateKitUseCase(updatedKit)
+                kits = kits.map { if (it.id == updatedKit.id) updatedKit else it }
                 _uiEvent.emit(KitSettingsEvent.NavigateBack)
             } catch (e: Exception) {
                 showError(e)
@@ -80,11 +84,15 @@ class KitSettingsViewModel @Inject constructor(
         }
     }
 
-    fun detachTile(tileId: Long) {
+    fun openTilesSelector() {
+        viewModelScope.launch { _uiEvent.emit(KitSettingsEvent.NavigateToTileCreate) }
+    }
+
+    fun onTileSelected(tileId: Long) {
         viewModelScope.launch {
             val kitId = selectedKitId ?: return@launch
             try {
-                detachTileFromKitUseCase(tileId, kitId)
+                linkTileToKitUseCase(tileId, kitId)
                 emitContent()
             } catch (e: Exception) {
                 showError(e)
@@ -92,11 +100,36 @@ class KitSettingsViewModel @Inject constructor(
         }
     }
 
-    fun deleteTile(tileId: Long) {
+    fun detachTile(tileId: Long, isLastTileInKit: Boolean) {
+        viewModelScope.launch {
+            val kitId = selectedKitId ?: return@launch
+            try {
+                if (isLastTileInKit) {
+                    // Для последнего тайла не делаем промежуточную отвязку:
+                    // удаление набора само очистит связи и отправит одно реактивное обновление
+                    // уже с финальным состоянием БД.
+                    deleteKitUseCase(kitId)
+                    _uiEvent.emit(KitSettingsEvent.NavigateBack)
+                } else {
+                    detachTileFromKitUseCase(tileId, kitId)
+                    emitContent()
+                }
+            } catch (e: Exception) {
+                showError(e)
+            }
+        }
+    }
+
+    fun deleteTile(tileId: Long, isLastTileInKit: Boolean) {
         viewModelScope.launch {
             try {
                 deleteTileUseCase(tileId)
-                emitContent()
+                if (isLastTileInKit) {
+                    selectedKitId?.let { deleteKitUseCase(it) }
+                    _uiEvent.emit(KitSettingsEvent.NavigateBack)
+                } else {
+                    emitContent()
+                }
             } catch (e: Exception) {
                 showError(e)
             }
@@ -154,6 +187,7 @@ class KitSettingsViewModel @Inject constructor(
 
     sealed interface KitSettingsEvent {
         data class ShowError(val message: String) : KitSettingsEvent
+        data object NavigateToTileCreate : KitSettingsEvent
         data object NavigateBack : KitSettingsEvent
     }
 }
