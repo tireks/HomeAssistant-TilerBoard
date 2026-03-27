@@ -32,7 +32,8 @@ fun SettingsScreen(
     onNavigateAddTile: () -> Unit = {},
     onNavigateKitSettings: () -> Unit = {},
     onNavigateAddKit:() -> Unit = {},
-    onNavigateTilesSettings: () -> Unit = {}
+    onNavigateTilesSettings: () -> Unit = {},
+    onNavigateAutomations: () -> Unit = {}
 ) {
     SettingsScreenContent(
         onNavigateSensorsList = onNavigateSensorsList,
@@ -40,7 +41,8 @@ fun SettingsScreen(
         onNavigateBack = onNavigateBack,
         onNavigateAddKit = onNavigateAddKit,
         onNavigateKitSettings = onNavigateKitSettings,
-        onNavigateTilesSettings = onNavigateTilesSettings
+        onNavigateTilesSettings = onNavigateTilesSettings,
+        onNavigateAutomations = onNavigateAutomations
     )
 }
 
@@ -52,14 +54,16 @@ fun SettingsScreenContent(
     onNavigateKitSettings: () -> Unit = {},
     onNavigateAddKit:() -> Unit = {},
     onNavigateTilesSettings: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onNavigateAutomations: () -> Unit = {}
 ) {
     val items = listOf(
         "Список всех сенсоров" to onNavigateSensorsList,
         "Добавление тайла в набор" to onNavigateAddTile,
         "Добавить новый набор" to onNavigateAddKit,
         "Настройки текущего набора" to onNavigateKitSettings,
-        "Список тайлов" to onNavigateTilesSettings
+        "Список тайлов" to onNavigateTilesSettings,
+        "Автоматизация" to onNavigateAutomations
     )
 
     Scaffold(

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.tirexmurina.tilerboard.shared.automation.data.local.models.AutomationLocalDatabaseModel
+import com.tirexmurina.tilerboard.shared.automation.data.local.source.AutomationDao
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.KitLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabaseModel
@@ -17,9 +19,10 @@ import com.tirexmurina.tilerboard.shared.util.local.source.TileKitCrossRefLocalD
         UserLocalDatabaseModel::class,
         KitLocalDatabaseModel::class,
         TileLocalDatabaseModel::class,
-        TileKitCrossRefLocalDatabaseModel::class
+        TileKitCrossRefLocalDatabaseModel::class,
+        AutomationLocalDatabaseModel::class
                ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +32,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun kitDao(): KitDao
 
     abstract fun tileDao(): TileDao
+
+    abstract fun automationDao(): AutomationDao
 
     companion object {
         @Volatile

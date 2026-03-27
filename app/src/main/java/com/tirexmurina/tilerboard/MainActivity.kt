@@ -8,13 +8,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.tirexmurina.tilerboard.features.util.AppNavHost
+import com.tirexmurina.tilerboard.shared.automation.service.AutomationServiceController
 import com.tirexmurina.tilerboard.ui.theme.TilerBoardTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var automationServiceController: AutomationServiceController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        automationServiceController.syncServiceState()
         setContent {
             TilerBoardTheme {
                 // A surface container using the 'background' color from the theme
