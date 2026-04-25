@@ -105,7 +105,7 @@ private fun TilesListScreenContent(
                                 .clip(RoundedCornerShape(8.dp)),
                             singleLine = true,
                             placeholder = { Text("Поиск тайлов...") },
-                            textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+                            textStyle = LocalTextStyle.current.copy(fontSize = 17.sp),
                             colors = TextFieldDefaults.colors(
                                 focusedTextColor = MaterialTheme.colorScheme.onSurface,
                                 unfocusedTextColor = MaterialTheme.colorScheme.onSurface,

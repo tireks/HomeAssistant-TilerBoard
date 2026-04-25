@@ -51,7 +51,7 @@ fun SimpleHumiditySensorTileCard(
             ) {
             Text(
                 text = title,
-                fontSize = 16.sp,
+                fontSize = 19.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -61,7 +61,7 @@ fun SimpleHumiditySensorTileCard(
 
             Text(
                 text = state?.toString() ?: "-?-",
-                fontSize = 20.sp,
+                fontSize = 23.sp,
                 fontWeight = FontWeight.Medium
             )
         }

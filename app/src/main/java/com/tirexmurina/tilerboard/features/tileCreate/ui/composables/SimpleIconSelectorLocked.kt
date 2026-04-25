@@ -42,7 +42,7 @@ fun SimpleIconSelectorLocked(
             )
             Text(
                 text = hintText,
-                fontSize = 10.sp
+                fontSize = 13.sp
             )
         }
     }

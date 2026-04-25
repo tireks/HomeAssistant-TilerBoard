@@ -106,7 +106,7 @@ fun SensorsListScreenContent(
                                 .clip(RoundedCornerShape(8.dp)),
                             singleLine = true,
                             placeholder = { Text("Поиск сенсоров...") },
-                            textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+                            textStyle = LocalTextStyle.current.copy(fontSize = 17.sp),
                             colors = TextFieldDefaults.colors(
                                 // текст
                                 focusedTextColor = MaterialTheme.colorScheme.onSurface,

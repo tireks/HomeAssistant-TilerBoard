@@ -175,13 +175,13 @@ fun AppNavHost(startDestination: String = ROUTE_WELCOME) {
                 Text(
                     text = alert.title,
                     color = Color.White,
-                    fontSize = 32.sp,
+                    fontSize = 35.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
                     text = alert.message,
                     color = Color.White,
-                    fontSize = 24.sp,
+                    fontSize = 27.sp,
                     modifier = Modifier.padding(top = 16.dp)
                 )
                 Button(
