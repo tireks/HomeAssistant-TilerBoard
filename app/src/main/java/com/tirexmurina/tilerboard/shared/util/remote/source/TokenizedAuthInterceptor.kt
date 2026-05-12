@@ -12,13 +12,17 @@ class TokenizedAuthInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = tokenDataStore.getAccessToken()
-            ?: throw TokenCorruptedOrUnavailable("Failed to read token from dataStore")
+            ?: throw TokenCorruptedOrUnavailable(
+                "Failed to read token from dataStore"
+            )
 
         var request = chain.request()
 
         urlDataStore.getBaseUrl()?.let { baseUrl ->
             val newBase = baseUrl.toHttpUrlOrNull()
-                ?: throw IllegalArgumentException("Invalid base url: $baseUrl")
+                ?: throw IllegalArgumentException(
+                    "Invalid base url: $baseUrl"
+                )
 
             val newUrl = request.url.newBuilder()
                 .scheme(newBase.scheme)

@@ -1,8 +1,12 @@
 package com.tirexmurina.tilerboard.di
 
 import com.tirexmurina.tilerboard.database.core.storage.AppDatabase
+import com.tirexmurina.tilerboard.shared.user.data.TokenRepositoryImpl
+import com.tirexmurina.tilerboard.shared.user.data.UrlRepositoryImpl
 import com.tirexmurina.tilerboard.shared.user.data.UserRepositoryImpl
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
+import com.tirexmurina.tilerboard.shared.user.domain.repository.TokenRepository
+import com.tirexmurina.tilerboard.shared.user.domain.repository.UrlRepository
 import com.tirexmurina.tilerboard.shared.user.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -25,6 +29,14 @@ class UserModule {
         @Binds
         @Singleton
         fun provideUsersRepository(repository: UserRepositoryImpl) : UserRepository
+
+        @Binds
+        @Singleton
+        fun provideTokenRepository(repository: TokenRepositoryImpl) : TokenRepository
+
+        @Binds
+        @Singleton
+        fun provideUrlRepository(repository: UrlRepositoryImpl) : UrlRepository
     }
 
 }
