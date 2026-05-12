@@ -8,7 +8,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.util.local.source.KitWithTilesLocalDatabaseModel
-import com.tirexmurina.tilerboard.shared.util.local.source.TileKitCrossRefLocalDatabaseModel
 
 @Dao
 interface TileDao {
@@ -23,33 +22,8 @@ interface TileDao {
     @Update
     suspend fun updateTile(tile: TileLocalDatabaseModel)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun linkTileToKit(crossRef: TileKitCrossRefLocalDatabaseModel)
-
-    @Query("DELETE FROM tile_kit_cross_ref WHERE tileId = :tileId AND kitId = :kitId")
-    suspend fun unlinkTileFromKit(tileId: Long, kitId: Long)
-
-    @Query("DELETE FROM tile_kit_cross_ref WHERE tileId = :tileId")
-    suspend fun clearTileLinks(tileId: Long)
-
-    @Query(
-        """
-        DELETE FROM tiles
-        WHERE id = :tileId
-        AND NOT EXISTS (
-            SELECT 1
-            FROM tile_kit_cross_ref
-            WHERE tileId = :tileId
-        )
-        """
-    )
-    suspend fun deleteTileIfOrphan(tileId: Long)
-
     @Query("DELETE FROM tiles WHERE id = :tileId")
     suspend fun deleteTile(tileId: Long)
-
-    @Query("SELECT COUNT(*) FROM tile_kit_cross_ref WHERE kitId = :kitId")
-    suspend fun getTileLinksCountByKitId(kitId: Long): Int
 
     @Query("SELECT * FROM tiles")
     suspend fun getAllTiles(): List<TileLocalDatabaseModel>

@@ -5,20 +5,20 @@ import com.tirexmurina.tilerboard.shared.datachange.DataChangeNotifier
 import com.tirexmurina.tilerboard.shared.sensor.domain.repository.SensorRepository
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileSensorlessDTO
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.converter.TileLocalDatabaseModelHelper
+import com.tirexmurina.tilerboard.shared.tile.data.local.source.KitTileLinkDao
 import com.tirexmurina.tilerboard.shared.tile.data.local.source.TileDao
 import com.tirexmurina.tilerboard.shared.tile.domain.entity.Tile
 import com.tirexmurina.tilerboard.shared.tile.domain.repository.TileRepository
 import com.tirexmurina.tilerboard.shared.tile.util.KitTileException
 import com.tirexmurina.tilerboard.shared.tile.util.TileCreationException
-import com.tirexmurina.tilerboard.shared.tile.util.TileDetachException
 import com.tirexmurina.tilerboard.shared.tile.util.TileType
-import com.tirexmurina.tilerboard.shared.util.local.source.TileKitCrossRefLocalDatabaseModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class TileRepositoryImpl @Inject constructor(
     private val tileDao: TileDao,
+    private val kitTileLinkDao: KitTileLinkDao,
     private val sensorRepository: SensorRepository,
     private val dispatcherIO: CoroutineDispatcher,
     private val localDatabaseModelHelper: TileLocalDatabaseModelHelper,
@@ -91,32 +91,10 @@ class TileRepositoryImpl @Inject constructor(
 
     override suspend fun deleteTile(tileId: Long) {
         withContext(dispatcherIO) {
-            tileDao.clearTileLinks(tileId)
+            kitTileLinkDao.clearTileLinks(tileId)
             tileDao.deleteTile(tileId)
             dataChangeNotifier.notifyChanged()
         }
     }
 
-    override suspend fun linkTileToKit(tileId: Long, kitId: Long) {
-        withContext(dispatcherIO) {
-            tileDao.linkTileToKit(
-                TileKitCrossRefLocalDatabaseModel(
-                    tileId = tileId,
-                    kitId = kitId
-                )
-            )
-            dataChangeNotifier.notifyChanged()
-        }
-    }
-
-    override suspend fun detachTileFromKit(tileId: Long, kitId: Long) {
-        return withContext(dispatcherIO) {
-            try {
-                tileDao.unlinkTileFromKit(tileId, kitId)
-                dataChangeNotifier.notifyChanged()
-            } catch (exception: Exception) {
-                throw TileDetachException(exception.message.toString())
-            }
-        }
-    }
 }

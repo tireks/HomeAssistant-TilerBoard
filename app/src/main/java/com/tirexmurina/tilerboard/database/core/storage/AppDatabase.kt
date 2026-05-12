@@ -9,6 +9,7 @@ import com.tirexmurina.tilerboard.shared.automation.data.local.source.Automation
 import com.tirexmurina.tilerboard.shared.kit.data.local.models.KitLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.kit.data.local.source.KitDao
 import com.tirexmurina.tilerboard.shared.tile.data.local.models.TileLocalDatabaseModel
+import com.tirexmurina.tilerboard.shared.tile.data.local.source.KitTileLinkDao
 import com.tirexmurina.tilerboard.shared.tile.data.local.source.TileDao
 import com.tirexmurina.tilerboard.shared.user.data.local.models.UserLocalDatabaseModel
 import com.tirexmurina.tilerboard.shared.user.data.local.source.UserDao
@@ -32,6 +33,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun kitDao(): KitDao
 
     abstract fun tileDao(): TileDao
+
+    abstract fun kitTileLinkDao(): KitTileLinkDao
 
     abstract fun automationDao(): AutomationDao
 

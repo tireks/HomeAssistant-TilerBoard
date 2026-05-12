@@ -18,7 +18,4 @@ interface TileRepository {
 
     suspend fun deleteTile(tileId: Long)
 
-    suspend fun linkTileToKit(tileId: Long, kitId: Long)
-
-    suspend fun detachTileFromKit(tileId: Long, kitId: Long)
 }
